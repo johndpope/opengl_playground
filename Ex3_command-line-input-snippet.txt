@@ -1,0 +1,17 @@
+	if (argc != 3)
+	{
+		printf("USAGE: Ex3_Part2_LightingShading.exe ARG1 ARG2\n");
+		printf("INPUT ARG1 : set recursion depth level (integer = 1 or greater)\n");
+		printf("INPUT ARG2 : 0 = facet normals, 1 = per-vertex normals, 2 = per-fragment Phong shading\n");
+		printf("Exiting...");
+		exit(EXIT_SUCCESS);
+	}
+	if (argc == 3) // INPUT ARG2 : 0 = facet normals, 1 = per-vertex normals, 2 = per-fragment Phong shading
+	{
+		genSphere(atoi(argv[1]), atoi(argv[2]));
+	}
+	else
+	{
+		printf("Invalid program input detected. Try rerunning with correct parameters. Exiting...");
+		exit(EXIT_FAILURE);
+	}
