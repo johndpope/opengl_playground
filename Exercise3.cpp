@@ -12,8 +12,12 @@
 #include <shaderWrapper.h>
 
 // Custom headers
+#ifndef STBI_INCLUDE_STB_IMAGE_H
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#endif
+
+#include "ISceneObject.h"
 
 // Define a helpful macro for handling offsets into buffer objects
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
@@ -22,55 +26,60 @@ const GLuint SCR_WIDTH = 1200;
 const GLuint SCR_HEIGHT = 1200;
 
 float can_cube_verts_cols[] = {
-	//+Z, Red
-	-1.0f, -1.0f, 1.0f,	1.0, 0.0, 0.0, 0.0,  0.0 ,// v0
-	1.0f, -1.0f, 1.0f,	1.0, 0.0, 0.0, 1.0f, 0.0 ,// v1
-	1.0f, 1.0f, 1.0f,	1.0, 0.0, 0.0, 1.0f, 1.0f,// v2  (MAX)
 
-	-1.0f, -1.0f, 1.0f,	1.0, 0.0, 0.0, 0.0,  0.0 ,// v0
-	1.0f, 1.0f, 1.0f,	1.0, 0.0, 0.0, 1.0f, 1.0f,// v2  (MAX)
-	-1.0f, 1.0f, 1.0f,	1.0, 0.0, 0.0, 0.0,  1.0f,// v3
-	//+X, Green
-	1.0f, -1.0f, 1.0f,	0.0, 1.0, 0.0, 0.0,  0.0 ,// v1
-	1.0f, -1.0f, -1.0f,	0.0, 1.0, 0.0, 1.0f, 0.0 ,// v4
-	1.0f, 1.0f, -1.0f,	0.0, 1.0, 0.0, 1.0f, 1.0f,// v7
+	//+Z
+	-1.0f, -1.0f, 1.0f,	 0.0,  0.0 , 0.0, 0.0, -1.0f, // v0
+	1.0f, -1.0f, 1.0f,	 1.0f, 0.0 , 0.0, 0.0, -1.0f, // v1
+	1.0f, 1.0f, 1.0f,	 1.0f, 1.0f, 0.0, 0.0, -1.0f, // v2
 
-	1.0f, -1.0f, 1.0f,	0.0, 1.0, 0.0, 0.0,  0.0 ,// v1
-	1.0f, 1.0f, -1.0f,	0.0, 1.0, 0.0, 1.0f, 1.0f,// v7
-	1.0f, 1.0f, 1.0f,	0.0, 1.0, 0.0, 0.0,  1.0f,// v2  (MAX)
-	//+Y, Blue
-	-1.0f, 1.0f, 1.0f,	0.0, 0.0, 1.0, 0.0,  0.0 ,// v3
-	1.0f, 1.0f, 1.0f,	0.0, 0.0, 1.0, 1.0f, 0.0 ,// v2  (MAX)
-	1.0f, 1.0f, -1.0f,	0.0, 0.0, 1.0, 1.0f, 1.0f,// v7
+	-1.0f, -1.0f, 1.0f,	 0.0,  0.0 , 0.0, 0.0, -1.0f, // v0
+	1.0f, 1.0f, 1.0f,	 1.0f, 1.0f, 0.0, 0.0, -1.0f, // v2
+	-1.0f, 1.0f, 1.0f,	 0.0,  1.0f, 0.0, 0.0, -1.0f, // v3
 
-	-1.0f, 1.0f, 1.0f,	0.0, 0.0, 1.0, 0.0,  0.0 ,// v3
-	1.0f, 1.0f, -1.0f,	0.0, 0.0, 1.0, 1.0f, 1.0f,// v7
-	-1.0f, 1.0f, -1.0f,	0.0, 0.0, 1.0, 0.0,  1.0f,// v6
-	//-Z, yellow
-	1.0f, -1.0f, -1.0f,	1.0, 1.0, 0.0, 0.0,  0.0 ,// v4
-	-1.0f, -1.0f, -1.0f,1.0, 1.0, 0.0, 1.0f, 0.0 ,// v5 (min)
-	-1.0f, 1.0f, -1.0f,	1.0, 1.0, 0.0, 1.0f, 1.0f,// v6
+	//+X
+	1.0f, -1.0f, 1.0f,	 0.0,  0.0 , 1.0f, 0.0, 0.0, // v1
+	1.0f, -1.0f, -1.0f,	 1.0f, 0.0 , 1.0f, 0.0, 0.0, // v4
+	1.0f, 1.0f, -1.0f,	 1.0f, 1.0f, 1.0f, 0.0, 0.0, // v7
 
-	1.0f, -1.0f, -1.0f,	1.0, 1.0, 0.0, 0.0,  0.0 ,// v4
-	-1.0f, 1.0f, -1.0f,	1.0, 1.0, 0.0, 1.0f, 1.0f,// v6
-	1.0f, 1.0f, -1.0f,	1.0, 1.0, 0.0, 0.0,  1.0f,// v7
-	//-X, Purple
-	-1.0f, -1.0f, -1.0f,1.0, 0.0, 1.0, 0.0,  0.0 ,// v5 (min)
-	-1.0f, -1.0f, 1.0f,	1.0, 0.0, 1.0, 1.0f, 0.0 ,// v0
-	-1.0f, 1.0f, 1.0f,	1.0, 0.0, 1.0, 1.0f, 1.0f,// v3
+	1.0f, -1.0f, 1.0f,	 0.0,  0.0 , 1.0f, 0.0, 0.0, // v1
+	1.0f, 1.0f, -1.0f,	 1.0f, 1.0f, 1.0f, 0.0, 0.0, // v7
+	1.0f, 1.0f, 1.0f,	 0.0,  1.0f, 1.0f, 0.0, 0.0, // v2
 
-	-1.0f, -1.0f, -1.0f,1.0, 0.0, 1.0, 0.0,  0.0 ,// v5 (min)
-	-1.0f, 1.0f, 1.0f,	1.0, 0.0, 1.0, 1.0f, 1.0f,// v3
-	-1.0f, 1.0f, -1.0f,	1.0, 0.0, 1.0, 0.0,  1.0f,// v6
+	//+Y
+	-1.0f, 1.0f, 1.0f,	 0.0,  0.0 , 0.0, 1.0f, 0.0, // v3
+	1.0f, 1.0f, 1.0f,	 1.0f, 0.0 , 0.0, 1.0f, 0.0, // v2
+	1.0f, 1.0f, -1.0f,	 1.0f, 1.0f, 0.0, 1.0f, 0.0, // v7
 
-	//-Y, light-blue
-	-1.0f, -1.0f, 1.0f, 0.0, 1.0, 1.0, 0.0,  0.0 ,// v0
-	-1.0f, -1.0f, -1.0f,0.0, 1.0, 1.0, 1.0f, 0.0 ,// v5 (min)
-	1.0f, -1.0f, -1.0f,	0.0, 1.0, 1.0, 1.0f, 1.0f,// v4
+	-1.0f, 1.0f, 1.0f,	 0.0,  0.0 , 0.0, 1.0f, 0.0, // v3
+	1.0f, 1.0f, -1.0f,	 1.0f, 1.0f, 0.0, 1.0f, 0.0, // v7
+	-1.0f, 1.0f, -1.0f,	 0.0,  1.0f, 0.0, 1.0f, 0.0, // v6
 
-	-1.0f, -1.0f, 1.0f,	0.0, 1.0, 1.0, 0.0,  0.0 ,// v0
-	1.0f, -1.0f, -1.0f,	0.0, 1.0, 1.0, 1.0f, 1.0f,// v4
-	1.0f, -1.0f, 1.0f,	0.0, 1.0, 1.0, 0.0,  1.0f// v1
+	//-Z
+	1.0f, -1.0f, -1.0f,	 0.0,  0.0 , 0.0, 0.0, -1.0f, // v4
+	-1.0f, -1.0f, -1.0f, 1.0f, 0.0 , 0.0, 0.0, -1.0f, // v5
+	-1.0f, 1.0f, -1.0f,	 1.0f, 1.0f, 0.0, 0.0, -1.0f, // v6
+
+	1.0f, -1.0f, -1.0f,	 0.0,  0.0 , 0.0, 0.0, -1.0f, // v4
+	-1.0f, 1.0f, -1.0f,	 1.0f, 1.0f, 0.0, 0.0, -1.0f, // v6
+	1.0f, 1.0f, -1.0f,	 0.0,  1.0f, 0.0, 0.0, -1.0f, // v7
+
+	//-X
+	-1.0f, -1.0f, -1.0f, 0.0,  0.0 , -1.0f, 0.0, 0.0, // v5
+	-1.0f, -1.0f, 1.0f,	 1.0f, 0.0 , -1.0f, 0.0, 0.0, // v0
+	-1.0f, 1.0f, 1.0f,	 1.0f, 1.0f, -1.0f, 0.0, 0.0, // v3
+
+	-1.0f, -1.0f, -1.0f, 0.0,  0.0 , -1.0f, 0.0, 0.0, // v5
+	-1.0f, 1.0f, 1.0f,	 1.0f, 1.0f, -1.0f, 0.0, 0.0, // v3
+	-1.0f, 1.0f, -1.0f,	 0.0,  1.0f, -1.0f, 0.0, 0.0, // v6
+
+	//-Y
+	-1.0f, -1.0f, 1.0f,  0.0,  0.0 , 0.0, -1.0f, 0.0, // v0
+	-1.0f, -1.0f, -1.0f, 1.0f, 0.0 , 0.0, -1.0f, 0.0, // v5
+	1.0f, -1.0f, -1.0f,	 1.0f, 1.0f, 0.0, -1.0f, 0.0, // v4
+
+	-1.0f, -1.0f, 1.0f,	 0.0,  0.0 , 0.0, -1.0f, 0.0, // v0
+	1.0f, -1.0f, -1.0f,	 1.0f, 1.0f, 0.0, -1.0f, 0.0, // v4
+	1.0f, -1.0f, 1.0f,	 0.0,  1.0f, 0.0, -1.0f, 0.0  // v1
 };
 
 // Define framebuffer callback function
@@ -83,13 +92,17 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 // GLOBAL DEFS = BAD in general
 // variables which get modified in keyboard callback function and affect render loop
-glm::mat4 g_model; 
+glm::mat4 g_model;
 glm::mat4 g_view;
 
 float g_rotate_angle = 45.0f;
 float g_scale_factor = 1.0f;
 float g_cam_z = 10.00f;  // can't have the lookdir vector (lookpt - eyept) = 0.
 GLenum gl_polygon_mode = GL_FILL;
+
+#define NUM_TEXTURES 6
+GLuint g_textures[NUM_TEXTURES];
+Material g_materials[NUM_TEXTURES];
 
 // Keyboard callback function, handles keypress events
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -161,16 +174,13 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 }
 
-#define NUM_TEXTURES 6
-GLuint textures[NUM_TEXTURES];
-
-// Define init( ) function 
+// Define init( ) function
 // HERE
 // Interleaved AoS Buffer method
 GLuint init1(GLuint* vao)
 {
 	// Load & compile/link shaders and use the resulting shader program
-	CShader myShaderWrap("shaders\\vshader.glsl", "shaders\\fshader.glsl");
+	CShader myShaderWrap("shaders\\textureVertexShader.glsl", "shaders\\textureFragmentShader.glsl");
 	myShaderWrap.use();
 
 	// Create a vertex array object
@@ -182,19 +192,19 @@ GLuint init1(GLuint* vao)
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(can_cube_verts_cols), can_cube_verts_cols, GL_STATIC_DRAW);
-	
+
 	// Initialize the vertex position attribute dynamically from the vertex shader variable name
 	GLuint loc = glGetAttribLocation(myShaderWrap.getProgram(), "vPosition");
 	glEnableVertexAttribArray(loc);
 	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); // use interleaved stride
 
-	GLuint clr = glGetAttribLocation(myShaderWrap.getProgram(), "vColor");
-	glEnableVertexAttribArray(clr);
-	glVertexAttribPointer(clr, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))); // interleaved stride & offset
+	GLuint tex = glGetAttribLocation(myShaderWrap.getProgram(), "vTexCoord");
+	glEnableVertexAttribArray(tex);
+	glVertexAttribPointer(tex, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))); // interleaved stride & offset
 
-	clr = glGetAttribLocation(myShaderWrap.getProgram(), "vTexCoord");
-	glEnableVertexAttribArray(clr);
-	glVertexAttribPointer(clr, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float))); // interleaved stride & offset
+	GLuint norm = glGetAttribLocation(myShaderWrap.getProgram(), "vNormal");
+	glEnableVertexAttribArray(norm);
+	glVertexAttribPointer(norm, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float))); // interleaved stride & offset
 
 	std::string textureNames[NUM_TEXTURES] = {
 		"textures\\nyan.jpg",
@@ -206,10 +216,10 @@ GLuint init1(GLuint* vao)
 	};
 
 	// Setup textures
-	glGenTextures(NUM_TEXTURES, textures);
+	glGenTextures(NUM_TEXTURES, g_textures);
 	for (int i = 0; i < NUM_TEXTURES; i++)
 	{
-		glBindTexture(GL_TEXTURE_2D, textures[i]);
+		glBindTexture(GL_TEXTURE_2D, g_textures[i]);
 
 		// set the texture wrapping & filtering options (on the currently bound texture object)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -226,6 +236,11 @@ GLuint init1(GLuint* vao)
 			glGenerateMipmap(GL_TEXTURE_2D);
 			stbi_image_free(data);
 		}
+
+		g_materials[i].shininess = rand()/(float)RAND_MAX;
+		g_materials[i].ambientColor = glm::vec3(0.1f, 0.1f, 0.1f);// glm::vec3(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX);
+		g_materials[i].diffuseColor = glm::vec3(rand()/(float)RAND_MAX, rand()/(float)RAND_MAX, rand()/(float)RAND_MAX);
+		g_materials[i].specularColor = glm::vec3(rand()/(float)RAND_MAX, rand()/(float)RAND_MAX, rand()/(float)RAND_MAX);
 	}
 
 	glBindVertexArray(0); // unbind
@@ -268,33 +283,77 @@ int main(int argc, char **argv)
 
 	glEnable(GL_DEPTH_TEST);
 
+	std::string textureNames[NUM_TEXTURES] = {
+		"textures\\nyan.jpg",
+		"textures\\cat.jpg",
+		"textures\\woman.jpg",
+		"textures\\sax.jpg",
+		"textures\\gandalf.jpg",
+		"textures\\table.jpg",
+	};
+
+	//UniqueTextureBox test(textureNames, glm::vec3(1.0f));
+	ColorBox test(glm::vec3(1.0f), glm::vec3(1.0f));
+	test.init();
+
 	GLuint vao;
 	GLuint PID = init1(&vao);
 
-	glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)(SCR_WIDTH / SCR_HEIGHT), 0.1f, 50.0f);
+	glm::mat4 proj = glm::perspective(glm::radians(g_rotate_angle), (float)(SCR_WIDTH / SCR_HEIGHT), 0.1f, 50.0f);
 	g_view = glm::lookAt(glm::vec3(0.0f, 0.0f, g_cam_z), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-	// render loop
+	// Light pose
+	const float interpolateDuration = 2.0f;
+	glm::vec3 startLightPosition(2.0f, 2.0, 2.0f);
+	glm::vec3 endLightPosition(-2.0f, -2.0, 2.0f);
+	float time = glfwGetTime();
+
+	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
+		//float elapsedTime = glfwGetTime() - time;
+		//if (elapsedTime > interpolateDuration)
+		//{
+		//	glm::vec3 temp = endLightPosition;
+		//	endLightPosition = startLightPosition;
+		//	startLightPosition = temp;
+		//	time = glfwGetTime();
+		//}
+
+		//float interpolate = elapsedTime / interpolateDuration;
+		//glm::vec3 lightPosition = interpolate * (endLightPosition - startLightPosition) + startLightPosition;
+
+		glm::mat4 modelView = g_view * g_model;
+		glm::mat4 modelViewProj = proj * modelView;
+		glm::mat3 modelViewNorm = glm::inverseTranspose(glm::mat3(modelView));
+
 		glClearColor(0.0f, 0.4f, 0.6f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glPolygonMode(GL_FRONT_AND_BACK, gl_polygon_mode); // moved into render loop since interactive now.
 
-		// dynamically located uniforms in shader program and pass the model/view/proj matrices
-		glUniformMatrix4fv(glGetUniformLocation(PID, "mModel"), 1, GL_FALSE, &g_model[0][0]); // get location of input shader variable and then pass the matrix
-		glUniformMatrix4fv(glGetUniformLocation(PID, "mView"), 1, GL_FALSE, &g_view[0][0]); // 
-		glUniformMatrix4fv(glGetUniformLocation(PID, "mProj"), 1, GL_FALSE, &proj[0][0]); // 
+		test.translateTo(endLightPosition, 10.0f);
+		test.update(proj, g_view);
 
-		glBindVertexArray(vao); // since we only have a single VAO there's no need to (un)bind it every time, but we'll do so to establish a good habit
+		// // dynamically located uniforms in shader program and pass the model/view/proj matrices
+		// glUniformMatrix4fv(glGetUniformLocation(PID, "mModelView"), 1, GL_FALSE, &modelView[0][0]); // get location of input shader variable and then pass the matrix
+		// glUniformMatrix4fv(glGetUniformLocation(PID, "mModelViewProj"), 1, GL_FALSE, &modelViewProj[0][0]); //
+		// glUniformMatrix3fv(glGetUniformLocation(PID, "mModelViewNorm"), 1, GL_FALSE, &modelViewNorm[0][0]); //
+		// glUniform3fv(glGetUniformLocation(PID, "vLightPosition"), 1, &test.translation()[0]);
 
-		for (int i = 0; i < NUM_TEXTURES; i++)
-		{
-			glBindTexture(GL_TEXTURE_2D, textures[i]);
-			glDrawArrays(GL_TRIANGLES, 6 * i, 6); // draw the points
-		}
+		// glBindVertexArray(vao); // since we only have a single VAO there's no need to (un)bind it every time, but we'll do so to establish a good habit
 
-		glBindVertexArray(0);
+		// for (int i = 0; i < NUM_TEXTURES; i++)
+		// {
+		// 	glUniform1f(glGetUniformLocation(PID, "fShininess"), g_materials[i].shininess);
+		// 	glUniform3fv(glGetUniformLocation(PID, "vAmbientColor"), 1, &g_materials[i].ambientColor[0]);
+		// 	glUniform3fv(glGetUniformLocation(PID, "vDiffuseColor"), 1, &g_materials[i].diffuseColor[0]);
+		// 	glUniform3fv(glGetUniformLocation(PID, "vSpecularColor"), 1, &g_materials[i].specularColor[0]);
+
+		// 	glBindTexture(GL_TEXTURE_2D, g_textures[i]);
+		// 	glDrawArrays(GL_TRIANGLES, 6 * i, 6); // draw the points
+		// }
+
+		// glBindVertexArray(0);
 		glFlush();
 
 		glfwSwapBuffers(window);
