@@ -14,23 +14,23 @@
 
 #define NUM_BOX_SIDES 6
 template <class Shader>
-class BoxBase : public ShapeBase<Shader>
+class Box : public Shape<Shader>
 {
 static_assert(std::is_base_of<ShaderBase, Shader>::value, "Shader must derive from ShaderBase");
 
 public:
-	BoxBase(Shader* shader, glm::vec3 size) :
-		ShapeBase<Shader>(shader),
+	Box(Shader* shader, glm::vec3 size) :
+		Shape<Shader>(shader),
 		m_size(size) { }
 
-	BoxBase(Shader* shader) :
-		ShapeBase<Shader>(shader)
+	Box(Shader* shader) :
+		Shape<Shader>(shader)
 	{
 		m_size = glm::vec3(1.0f);
 	}
 
 protected:
-	virtual ~BoxBase() = default;
+	virtual ~Box() = default;
 
 	virtual void initBox(const GLuint& vao, const GLuint& vbo) = 0;
 	virtual void updateBox(const float& totalTime, const float& elapsedTime, const glm::mat4& projection, const glm::mat4& view) = 0;
@@ -128,11 +128,11 @@ private:
 	glm::vec3 m_size;
 };
 
-class ColorBox : public BoxBase<ColorShader>
+class ColorBox : public Box<ColorShader>
 {
 public:
 	ColorBox(const glm::vec3 color, glm::vec3 size)
-		: BoxBase(new ColorShader(), size),
+		: Box(new ColorShader(), size),
 		  m_color(color)
 	{
 		m_material.shininess = rand() / (float)RAND_MAX;
@@ -142,7 +142,7 @@ public:
 	}
 
 	ColorBox(const Material material, glm::vec3 size)
-		: BoxBase(new ColorShader(), size),
+		: Box(new ColorShader(), size),
 		  m_material(material) { }
 
 private:
@@ -176,11 +176,11 @@ private:
 	glm::vec3 m_color;
 };
 
-class UniqueTextureBox : public BoxBase<TextureShader>
+class UniqueTextureBox : public Box<TextureShader>
 {
 public:
 	UniqueTextureBox(const std::string texturePaths[NUM_BOX_SIDES], glm::vec3 size)
-		: BoxBase(new TextureShader(), size)
+		: Box(new TextureShader(), size)
 	{
 		for (int i = 0; i < NUM_BOX_SIDES; i++)
 		{
@@ -193,7 +193,7 @@ public:
 	}
 
 	UniqueTextureBox(const TextureMaterial textureMaterials[NUM_BOX_SIDES], glm::vec3 size)
-		: BoxBase(new TextureShader(), size)
+		: Box(new TextureShader(), size)
 	{
 		for (int i = 0; i < NUM_BOX_SIDES; i++)
 		{

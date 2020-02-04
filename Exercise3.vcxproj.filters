@@ -39,6 +39,12 @@
     <ClInclude Include="include\cshader.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\camera.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\key_listener.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\colorFragmentShader.glsl">
