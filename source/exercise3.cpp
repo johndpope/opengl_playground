@@ -9,7 +9,7 @@
 #include ".\gtc\matrix_inverse.hpp"
 
 // Shader wrapper C++ class
-#include <shaderWrapper.h>
+#include <cshader.h>
 
 // Custom headers
 #ifndef STBI_INCLUDE_STB_IMAGE_H
@@ -17,7 +17,7 @@
 #include <stb_image.h>
 #endif
 
-#include "ISceneObject.h"
+#include <box.h>
 
 // Define a helpful macro for handling offsets into buffer objects
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
@@ -180,7 +180,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 GLuint init1(GLuint* vao)
 {
 	// Load & compile/link shaders and use the resulting shader program
-	CShader myShaderWrap("shaders\\textureVertexShader.glsl", "shaders\\textureFragmentShader.glsl");
+	CShader myShaderWrap("shader\\textureVertexShader.glsl", "shader\\textureFragmentShader.glsl");
 	myShaderWrap.use();
 
 	// Create a vertex array object
@@ -292,8 +292,8 @@ int main(int argc, char **argv)
 		"textures\\table.jpg",
 	};
 
-	//UniqueTextureBox test(textureNames, glm::vec3(1.0f));
-	ColorBox test(glm::vec3(1.0f), glm::vec3(1.0f));
+	UniqueTextureBox test(textureNames, glm::vec3(1.0f));
+	//ColorBox test(glm::vec3(1.0f), glm::vec3(1.0f));
 	test.init();
 
 	GLuint vao;

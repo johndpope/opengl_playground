@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{c05247bd-d181-42a1-9156-b5978a6e614f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader">
+      <UniqueIdentifier>{d9fe263e-199e-4e4d-aedc-315044087d3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source">
+      <UniqueIdentifier>{cc788196-91ea-4e87-a29b-e143013b1557}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\box.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\material.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\movable.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\recursiveSphereBuilder_ColorNormals.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\shader.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\shape.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stb_image.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stb_image_write.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cshader.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shader\colorFragmentShader.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\colorVertexShader.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\textureFragmentShader.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\textureVertexShader.glsl">
+      <Filter>shader</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\exercise3.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

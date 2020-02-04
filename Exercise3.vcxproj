@@ -18,6 +18,26 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\box.h" />
+    <ClInclude Include="include\material.h" />
+    <ClInclude Include="include\movable.h" />
+    <ClInclude Include="include\recursiveSphereBuilder_ColorNormals.h" />
+    <ClInclude Include="include\shader.h" />
+    <ClInclude Include="include\cshader.h" />
+    <ClInclude Include="include\shape.h" />
+    <ClInclude Include="include\stb_image.h" />
+    <ClInclude Include="include\stb_image_write.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shader\colorFragmentShader.glsl" />
+    <None Include="shader\colorVertexShader.glsl" />
+    <None Include="shader\textureFragmentShader.glsl" />
+    <None Include="shader\textureVertexShader.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\exercise3.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{25A66727-F678-40F5-84AA-51051F0902D4}</ProjectGuid>
@@ -84,12 +104,15 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\shared\glfw\include\GLFW;$(SolutionDir)\shared;$(SolutionDir)\shared\GL\include;$(SolutionDir)\shared\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\shared\glfw\include\GLFW;$(SolutionDir)\shared;$(SolutionDir)\shared\GL\include;$(SolutionDir)\shared\glm;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\shared\GL\lib;$(SolutionDir)\shared\GL\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)$(ProjectName)\shader" "$(TargetDir)\shader" /e /y /i /r</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -113,7 +136,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\shared\glfw\include\GLFW;$(SolutionDir)\shared;$(SolutionDir)\shared\GL\include;$(SolutionDir)\shared\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\shared\glfw\include\GLFW;$(SolutionDir)\shared;$(SolutionDir)\shared\GL\include;$(SolutionDir)\shared\glm;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -121,20 +144,10 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\shared\GL\lib;$(SolutionDir)\shared\GL\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)$(ProjectName)\shader" "$(TargetDir)\shader" /e /y /i /r</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Exercise3.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="ISceneObject.h" />
-    <ClInclude Include="shaderWrapper.h" />
-    <ClInclude Include="stb_image.h" />
-    <ClInclude Include="stb_image_write.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="shaders\fshader.glsl" />
-    <None Include="shaders\vshader.glsl" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
