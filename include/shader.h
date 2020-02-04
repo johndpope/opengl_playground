@@ -12,6 +12,27 @@ public:
 	{
 		this->use();
 		m_pid = this->getProgram();
+
+		this->printAllAttributes();
+	}
+
+	void printAllAttributes()
+	{
+		const GLsizei bufferSize = 16;
+		GLint size;
+		GLenum type;
+		GLchar name[bufferSize];
+		GLsizei length;
+
+		int count;
+		glGetProgramiv(m_pid, GL_ACTIVE_ATTRIBUTES, &count);
+		printf("Active Attributes: %d\n", count);
+
+		for (int i = 0; i < count; i++)
+		{
+			glGetActiveAttrib(m_pid, (GLuint)i, bufferSize, &length, &size, &type, name);
+			printf("Attribute #%d Type: %u Name: %s\n", i, type, name);
+		}
 	}
 
 	void setBufferPosition(int stride, int offset)

@@ -30,6 +30,5 @@ void main()
 	vec3 vDiffuse  = vDiffuseColor * diff * vec3(texture(sDiffuse, vFragTexCoord));
 	vec3 vSpecular = vSpecularColor * spec * vec3(texture(sSpecular, vFragTexCoord));
 
-	//vFragColor = vec4(vAmbient + vDiffuse + vSpecular, 1.0);
-	vFragColor = vec4(vEyeSpaceNormal.x, vEyeSpaceNormal.y, vEyeSpaceNormal.z, 1.0);
+	vFragColor = vec4(vAmbient + vDiffuse + vSpecular, 1.0);
 }

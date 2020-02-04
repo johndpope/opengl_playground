@@ -207,12 +207,12 @@ GLuint init1(GLuint* vao)
 	glVertexAttribPointer(norm, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float))); // interleaved stride & offset
 
 	std::string textureNames[NUM_TEXTURES] = {
-		"textures\\nyan.jpg",
-		"textures\\cat.jpg",
-		"textures\\woman.jpg",
-		"textures\\sax.jpg",
-		"textures\\gandalf.jpg",
-		"textures\\table.jpg",
+		"texture\\nyan.jpg",
+		"texture\\cat.jpg",
+		"texture\\woman.jpg",
+		"texture\\sax.jpg",
+		"texture\\gandalf.jpg",
+		"texture\\table.jpg",
 	};
 
 	// Setup textures
@@ -284,12 +284,12 @@ int main(int argc, char **argv)
 	glEnable(GL_DEPTH_TEST);
 
 	std::string textureNames[NUM_TEXTURES] = {
-		"textures\\nyan.jpg",
-		"textures\\cat.jpg",
-		"textures\\woman.jpg",
-		"textures\\sax.jpg",
-		"textures\\gandalf.jpg",
-		"textures\\table.jpg",
+		"texture\\nyan.jpg",
+		"texture\\cat.jpg",
+		"texture\\woman.jpg",
+		"texture\\sax.jpg",
+		"texture\\gandalf.jpg",
+		"texture\\table.jpg",
 	};
 
 	UniqueTextureBox test(textureNames, glm::vec3(1.0f));
@@ -335,25 +335,25 @@ int main(int argc, char **argv)
 		test.update(proj, g_view);
 
 		// // dynamically located uniforms in shader program and pass the model/view/proj matrices
-		// glUniformMatrix4fv(glGetUniformLocation(PID, "mModelView"), 1, GL_FALSE, &modelView[0][0]); // get location of input shader variable and then pass the matrix
-		// glUniformMatrix4fv(glGetUniformLocation(PID, "mModelViewProj"), 1, GL_FALSE, &modelViewProj[0][0]); //
-		// glUniformMatrix3fv(glGetUniformLocation(PID, "mModelViewNorm"), 1, GL_FALSE, &modelViewNorm[0][0]); //
-		// glUniform3fv(glGetUniformLocation(PID, "vLightPosition"), 1, &test.translation()[0]);
+		glUniformMatrix4fv(glGetUniformLocation(PID, "mModelView"), 1, GL_FALSE, &modelView[0][0]); // get location of input shader variable and then pass the matrix
+		glUniformMatrix4fv(glGetUniformLocation(PID, "mModelViewProj"), 1, GL_FALSE, &modelViewProj[0][0]); //
+		glUniformMatrix3fv(glGetUniformLocation(PID, "mModelViewNorm"), 1, GL_FALSE, &modelViewNorm[0][0]); //
+		glUniform3fv(glGetUniformLocation(PID, "vLightPosition"), 1, &test.translation()[0]);
 
-		// glBindVertexArray(vao); // since we only have a single VAO there's no need to (un)bind it every time, but we'll do so to establish a good habit
+		glBindVertexArray(vao); // since we only have a single VAO there's no need to (un)bind it every time, but we'll do so to establish a good habit
 
-		// for (int i = 0; i < NUM_TEXTURES; i++)
-		// {
-		// 	glUniform1f(glGetUniformLocation(PID, "fShininess"), g_materials[i].shininess);
-		// 	glUniform3fv(glGetUniformLocation(PID, "vAmbientColor"), 1, &g_materials[i].ambientColor[0]);
-		// 	glUniform3fv(glGetUniformLocation(PID, "vDiffuseColor"), 1, &g_materials[i].diffuseColor[0]);
-		// 	glUniform3fv(glGetUniformLocation(PID, "vSpecularColor"), 1, &g_materials[i].specularColor[0]);
+		for (int i = 0; i < NUM_TEXTURES; i++)
+		{
+			glUniform1f(glGetUniformLocation(PID, "fShininess"), g_materials[i].shininess);
+			glUniform3fv(glGetUniformLocation(PID, "vAmbientColor"), 1, &g_materials[i].ambientColor[0]);
+			glUniform3fv(glGetUniformLocation(PID, "vDiffuseColor"), 1, &g_materials[i].diffuseColor[0]);
+			glUniform3fv(glGetUniformLocation(PID, "vSpecularColor"), 1, &g_materials[i].specularColor[0]);
 
-		// 	glBindTexture(GL_TEXTURE_2D, g_textures[i]);
-		// 	glDrawArrays(GL_TRIANGLES, 6 * i, 6); // draw the points
-		// }
+			glBindTexture(GL_TEXTURE_2D, g_textures[i]);
+			glDrawArrays(GL_TRIANGLES, 6 * i, 6); // draw the points
+		}
 
-		// glBindVertexArray(0);
+		glBindVertexArray(0);
 		glFlush();
 
 		glfwSwapBuffers(window);
