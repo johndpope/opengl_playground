@@ -2,6 +2,7 @@
 #include <glm.hpp>
 #include <glew.h>
 #include <glm\gtc\matrix_inverse.hpp>
+#include <camera.h>
 #include <material.h>
 #include <shader.h>
 #include <shape.h>
@@ -19,7 +20,7 @@ class Box : public Shape<Shader>
 static_assert(std::is_base_of<ShaderBase, Shader>::value, "Shader must derive from ShaderBase");
 
 public:
-	Box(Shader* shader, glm::vec3 size) :
+	Box(Shader* shader, const glm::vec3& size) :
 		Shape<Shader>(shader),
 		m_size(size) { }
 
@@ -33,7 +34,7 @@ protected:
 	virtual ~Box() = default;
 
 	virtual void initBox(const GLuint& vao, const GLuint& vbo) = 0;
-	virtual void updateBox(const float& totalTime, const float& elapsedTime, const glm::mat4& projection, const glm::mat4& view) = 0;
+	virtual void updateBox(const float& totalTime, const float& elapsedTime, const Camera& camera, const Light& light) = 0;
 	virtual void generateCustomBox(float vertices[396], glm::vec3& size)
 	{
 		this->generateBox(vertices, size);
@@ -120,12 +121,45 @@ private:
 		this->initBox(vao, vbo);
 	}
 
-	void updateShape(const float& totalTime, const float& elapsedTime, const glm::mat4& projection, const glm::mat4& view)
+	void updateShape(const float& totalTime, const float& elapsedTime, const Camera& camera, const Light& light)
 	{
-		this->updateBox(totalTime, elapsedTime, projection, view);
+		this->updateBox(totalTime, elapsedTime, camera, light);
 	}
 
 	glm::vec3 m_size;
+};
+
+class BasicColorBox : public Box<BasicColorShader>
+{
+public:
+	BasicColorBox(const glm::vec3 color, const glm::vec3& size)
+		: Box(new BasicColorShader(), size),
+		  m_color(color) { }
+
+	BasicColorBox(const glm::vec3& size)
+		: Box(new BasicColorShader(), size),
+		m_color(glm::vec3(1.0f)) { }
+
+private:
+	void generateCustomBox(float vertices[396], glm::vec3& size)
+	{
+		this->generateBox(vertices, size, &m_color);
+	}
+
+	void initBox(const GLuint& vao, const GLuint& vbo)
+	{
+		m_shader->setBufferPosition(11, 0);
+		m_shader->setBufferColor(11, 8);
+	}
+
+	void updateBox(const float& totalTime, const float& elapsedTime, const Camera& camera, const Light& light)
+	{
+		glm::mat4 modelViewProj = camera.projection() * camera.pose() * m_transform;
+		m_shader->setModelViewProjection(modelViewProj);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
+
+	glm::vec3 m_color;
 };
 
 class ColorBox : public Box<ColorShader>
@@ -143,7 +177,8 @@ public:
 
 	ColorBox(const Material material, glm::vec3 size)
 		: Box(new ColorShader(), size),
-		  m_material(material) { }
+		  m_material(material),
+		  m_color(glm::vec3(1.0f)) { }
 
 private:
 	void generateCustomBox(float vertices[396], glm::vec3& size)
@@ -158,15 +193,16 @@ private:
 		m_shader->setBufferColor(11, 8);
 	}
 
-	void updateBox(const float& totalTime, const float& elapsedTime, const glm::mat4& projection, const glm::mat4& view)
+	void updateBox(const float& totalTime, const float& elapsedTime, const Camera& camera, const Light& light)
 	{
-		glm::mat4 modelView = view * m_transform;
-		glm::mat4 modelViewProj = projection * modelView;
+		glm::mat4 modelView = camera.pose() * m_transform;
+		glm::mat4 modelViewProj = camera.projection() * modelView;
 		glm::mat3 modelViewNorm = glm::inverseTranspose(glm::mat3(modelView));
 
 		m_shader->setModelView(modelView);
 		m_shader->setModelViewProjection(modelViewProj);
 		m_shader->setModelViewNormal(modelViewNorm);
+		m_shader->setLightPosition(light.translation());
 
 		m_shader->setMaterial(m_material);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -229,15 +265,16 @@ private:
 		}
 	}
 
-	void updateBox(const float& totalTime, const float& elapsedTime, const glm::mat4& projection, const glm::mat4& view)
+	void updateBox(const float& totalTime, const float& elapsedTime, const Camera& camera, const Light& light)
 	{
-		glm::mat4 modelView = view * m_transform;
-		glm::mat4 modelViewProj = projection * modelView;
+		glm::mat4 modelView = camera.pose() * m_transform;
+		glm::mat4 modelViewProj = camera.projection() * modelView;
 		glm::mat3 modelViewNorm = glm::inverseTranspose(glm::mat3(modelView));
 
 		m_shader->setModelView(modelView);
 		m_shader->setModelViewProjection(modelViewProj);
 		m_shader->setModelViewNormal(modelViewNorm);
+		m_shader->setLightPosition(light.translation());
 
 		for (int i = 0; i < NUM_BOX_SIDES; i++)
 		{

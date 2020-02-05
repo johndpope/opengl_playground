@@ -22,6 +22,8 @@
     <ClInclude Include="include\box.h" />
     <ClInclude Include="include\camera.h" />
     <ClInclude Include="include\key_listener.h" />
+    <ClInclude Include="include\light.h" />
+    <ClInclude Include="include\light_shape.h" />
     <ClInclude Include="include\material.h" />
     <ClInclude Include="include\movable.h" />
     <ClInclude Include="include\recursiveSphereBuilder_ColorNormals.h" />
@@ -32,13 +34,15 @@
     <ClInclude Include="include\stb_image_write.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shader\basicColorFragmentShader.glsl" />
+    <None Include="shader\basicColorVertexShader.glsl" />
     <None Include="shader\colorFragmentShader.glsl" />
     <None Include="shader\colorVertexShader.glsl" />
     <None Include="shader\textureFragmentShader.glsl" />
     <None Include="shader\textureVertexShader.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\exercise3.cpp" />
+    <ClCompile Include="source\main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

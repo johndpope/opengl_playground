@@ -32,13 +32,13 @@ public:
 		m_init = true;
 	}
 
-	void update(const glm::mat4& projection, const glm::mat4& view)
+	void update()
 	{
 		m_totalTime = glfwGetTime() - m_startTime;
 		float elapsedTime = m_totalTime - m_lastTotalTime;
 
 		glBindVertexArray(m_vao);
-		this->updateUpdatable(m_totalTime, elapsedTime, projection, view);
+		this->updateUpdatable(m_totalTime, elapsedTime);
 		glBindVertexArray(0);
 
 		m_lastTotalTime = m_totalTime;
@@ -48,7 +48,7 @@ protected:
 	virtual ~UpdatableObject() = default;
 
 	virtual void initUpdatable(const GLuint& vao, const GLuint& vbo) = 0;
-	virtual void updateUpdatable(const float& totalTime, const float& elapsedTime, const glm::mat4& projection, const glm::mat4& view) = 0;
+	virtual void updateUpdatable(const float& totalTime, const float& elapsedTime) = 0;
 
 private:
 	CShader* m_shader;
@@ -65,12 +65,12 @@ class MovableObject : public UpdatableObject
 public:
 	MovableObject() = default;
 
-	const glm::mat4& pose()
+	const glm::mat4& pose() const
 	{
 		return m_transform;
 	}
 
-	const glm::vec3 translation()
+	const glm::vec3 translation() const
 	{
 		glm::vec3 scale;
 		glm::quat quaternion;
@@ -82,7 +82,7 @@ public:
 		return translation;
 	}
 
-	const glm::mat4 rotation()
+	const glm::mat4 rotation() const
 	{
 		glm::vec3 scale;
 		glm::quat quaternion;
@@ -151,7 +151,7 @@ public:
 		this->transformTo(transform, duration);
 	}
 
-	void transformTo(const glm::mat4& targetTransform, const float& duration)
+	void transformTo(const glm::mat4& targetTransform, const float& duration = -1.0f)
 	{
 		if (duration < 0.0f)
 		{
@@ -159,6 +159,7 @@ public:
 		}
 		else
 		{
+			m_startTransform = m_transform;
 			m_targetTransform = targetTransform;
 			m_targetDuration = duration;
 			m_targetDurationTimer = duration;
@@ -166,8 +167,7 @@ public:
 	}
 
 protected:
-	void updateUpdatable(const float& totalTime, const float& elapsedTime, const glm::mat4& projection, const glm::mat4& view)
-
+	void updateUpdatable(const float& totalTime, const float& elapsedTime)
 	{
 		if (m_targetDurationTimer > 0.0f)
 		{
@@ -175,10 +175,10 @@ protected:
 			m_targetDurationTimer = glm::max(m_targetDurationTimer, 0.0f);
 
 			float delta = (m_targetDuration - m_targetDurationTimer) / m_targetDuration;
-			m_transform = glm::interpolate(m_transform, m_targetTransform, delta);
+			m_transform = glm::interpolate(m_startTransform, m_targetTransform, delta);
 		}
 
-		this->updateMovable(totalTime, elapsedTime, projection, view);
+		this->updateMovable(totalTime, elapsedTime);
 	}
 
 	void initUpdatable(const GLuint& vao, const GLuint& vbo)
@@ -189,7 +189,7 @@ protected:
 	virtual ~MovableObject() = default;
 
 	virtual void initMovable(const GLuint& vao, const GLuint& vbo) = 0;
-	virtual void updateMovable(const float& totalTime, const float& elapsedTime, const glm::mat4& projection, const glm::mat4& view) = 0;
+	virtual void updateMovable(const float& totalTime, const float& elapsedTime) = 0;
 
 	glm::mat4 m_transform;
 
@@ -205,6 +205,7 @@ private:
 		return transform;
 	}
 
+	glm::mat4 m_startTransform;
 	glm::mat4 m_targetTransform;
 	float m_targetDuration;
 	float m_targetDurationTimer;

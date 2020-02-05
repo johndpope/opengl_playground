@@ -45,6 +45,12 @@
     <ClInclude Include="include\key_listener.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\light.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\light_shape.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\colorFragmentShader.glsl">
@@ -59,9 +65,15 @@
     <None Include="shader\textureVertexShader.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="shader\basicColorVertexShader.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\basicColorFragmentShader.glsl">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\exercise3.cpp">
+    <ClCompile Include="source\main.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>

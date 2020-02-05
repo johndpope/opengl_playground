@@ -33,11 +33,23 @@ public:
 			glGetActiveAttrib(m_pid, (GLuint)i, bufferSize, &length, &size, &type, name);
 			printf("Attribute #%d Type: %u Name: %s\n", i, type, name);
 		}
+
+		printf("\n");
 	}
 
 	void setBufferPosition(int stride, int offset)
 	{
 		this->setBufferParameter("vPosition", 3, stride, offset);
+	}
+
+	void setModelView(const glm::mat4& modelView)
+	{
+		glUniformMatrix4fv(glGetUniformLocation(m_pid, "mModelView"), 1, GL_FALSE, &modelView[0][0]);
+	}
+
+	void setModelViewProjection(const glm::mat4& modelViewProjection)
+	{
+		glUniformMatrix4fv(glGetUniformLocation(m_pid, "mModelViewProj"), 1, GL_FALSE, &modelViewProjection[0][0]);
 	}
 
 protected:
@@ -57,19 +69,14 @@ public:
 	LightingShader(std::string vertexShader, std::string fragmentShader) :
 		ShaderBase(vertexShader, fragmentShader) { }
 
-	void setModelView(const glm::mat4& modelView)
-	{
-		glUniformMatrix4fv(glGetUniformLocation(m_pid, "mModelView"), 1, GL_FALSE, &modelView[0][0]);
-	}
-
-	void setModelViewProjection(const glm::mat4& modelViewProjection)
-	{
-		glUniformMatrix4fv(glGetUniformLocation(m_pid, "mModelViewProj"), 1, GL_FALSE, &modelViewProjection[0][0]);
-	}
-
 	void setModelViewNormal(const glm::mat4& modelViewNormal)
 	{
 		glUniformMatrix3fv(glGetUniformLocation(m_pid, "mModelViewNorm"), 1, GL_FALSE, &modelViewNormal[0][0]);
+	}
+
+	void setLightPosition(const glm::vec3& lightPosition)
+	{
+		glUniform3fv(glGetUniformLocation(m_pid, "vLightPosition"), 1, &lightPosition[0]);
 	}
 
 	void setBufferNormal(int stride, int offset)
@@ -110,6 +117,18 @@ public:
 		this->setAmbientColor(material.ambientColor);
 		this->setDiffuseColor(material.diffuseColor);
 		this->setSpecularColor(material.specularColor);
+	}
+};
+
+class BasicColorShader : public ShaderBase
+{
+public:
+	BasicColorShader() :
+		ShaderBase("shader\\basicColorVertexShader.glsl", "shader\\basicColorFragmentShader.glsl") { }
+
+	void setBufferColor(int stride, int offset)
+	{
+		this->setBufferParameter("vColor", 3, stride, offset);
 	}
 };
 

@@ -6,21 +6,18 @@
 class Camera : public MovableObject
 {
 public:
-	virtual glm::mat4& projection() = 0;
+	virtual const glm::mat4& projection() const = 0;
 
-	void lookAt(glm::vec3 point, float duration)
+	void lookAt(glm::vec3 point, float duration = -1.0f)
 	{
 		glm::mat4 transform = glm::lookAt(this->translation(), point, glm::vec3(0.0f, 1.0f, 0.0f));
 
 		this->transformTo(transform, duration);
 	}
 
-protected:
-	virtual void initCamera(const GLuint& vao, const GLuint& vbo) = 0;
-
 private:
 	void initMovable(const GLuint& vao, const GLuint& vbo) { }
-	void updateMovable(const float& totalTime, const float& elapsedTime, const glm::mat4& projection, const glm::mat4& view) { }
+	void updateMovable(const float& totalTime, const float& elapsedTime) { }
 };
 
 class OrthographicCamera : public Camera
@@ -38,7 +35,7 @@ public:
 		m_projection = glm::ortho(left, right, bottom, top, nearClipPlane, farClipPlane);
 	}
 
-	glm::mat4& projection()
+	const glm::mat4& projection() const
 	{
 		return m_projection;
 	}
@@ -60,7 +57,7 @@ public:
 		m_projection = glm::perspective(glm::radians(verticalFov), width / (float)height, nearClipPlane, farClipPlane);
 	}
 
-	glm::mat4& projection()
+	const glm::mat4& projection() const
 	{
 		return m_projection;
 	}
