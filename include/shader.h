@@ -57,7 +57,12 @@ protected:
 	{
 		GLuint loc = glGetAttribLocation(m_pid, name.c_str());
 		glEnableVertexAttribArray(loc);
-		glVertexAttribPointer(loc, numAttribs, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float))); // use interleaved stride
+		glVertexAttribPointer(loc, numAttribs, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
+
+		if (loc == (unsigned int)-1)
+		{
+			fprintf(stderr, "Failed to set buffer parameter: %s\n", name);
+		}
 	}
 
 	unsigned int m_pid;

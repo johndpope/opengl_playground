@@ -154,7 +154,7 @@ private:
 
 	void updateBox(const float& totalTime, const float& elapsedTime, const Camera& camera, const Light& light)
 	{
-		glm::mat4 modelViewProj = camera.projection() * camera.pose() * m_transform;
+		glm::mat4 modelViewProj = camera.projection() * camera.pose() * this->pose();
 		m_shader->setModelViewProjection(modelViewProj);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
@@ -169,6 +169,8 @@ public:
 		: Box(new ColorShader(), size),
 		  m_color(color)
 	{
+		srand(glfwGetTime());
+
 		m_material.shininess = rand() / (float)RAND_MAX;
 		m_material.ambientColor = glm::vec3(0.1f, 0.1f, 0.1f);// glm::vec3(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX);
 		m_material.diffuseColor = glm::vec3(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX);
@@ -195,7 +197,7 @@ private:
 
 	void updateBox(const float& totalTime, const float& elapsedTime, const Camera& camera, const Light& light)
 	{
-		glm::mat4 modelView = camera.pose() * m_transform;
+		glm::mat4 modelView = camera.pose() * this->pose();
 		glm::mat4 modelViewProj = camera.projection() * modelView;
 		glm::mat3 modelViewNorm = glm::inverseTranspose(glm::mat3(modelView));
 
@@ -218,6 +220,8 @@ public:
 	UniqueTextureBox(const std::string texturePaths[NUM_BOX_SIDES], glm::vec3 size)
 		: Box(new TextureShader(), size)
 	{
+		srand(glfwGetTime());
+
 		for (int i = 0; i < NUM_BOX_SIDES; i++)
 		{
 			m_textureMaterials[i].texturePath = texturePaths[i];
@@ -267,7 +271,7 @@ private:
 
 	void updateBox(const float& totalTime, const float& elapsedTime, const Camera& camera, const Light& light)
 	{
-		glm::mat4 modelView = camera.pose() * m_transform;
+		glm::mat4 modelView = camera.pose() * this->pose();
 		glm::mat4 modelViewProj = camera.projection() * modelView;
 		glm::mat3 modelViewNorm = glm::inverseTranspose(glm::mat3(modelView));
 

@@ -17,7 +17,7 @@ public:
 	{
 		if (shader == nullptr)
 		{
-			std::cout << "NULL shader provided..." << std::endl;
+			fprintf(stdout, "NULL shader provided...\n");
 		}
 	}
 
@@ -55,7 +55,7 @@ private:
 		this->initShape(vao, vbo);
 	}
 
-	void updateMovable(const float& totalTime, const float& elapsedTime) 
+	void updateMovable(const float& totalTime, const float& elapsedTime)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, m_wireframe);
 

@@ -113,24 +113,24 @@ private:
 	void plusZ()
 	{
 		m_camera.translate(glm::vec3(0, 0, m_scale));
-		fprintf(stderr, "<key_callback> P pressed\n");
+		fprintf(stdout, "<key_callback> P pressed\n");
 	}
 
 	void minusZ()
 	{
 		m_camera.translate(glm::vec3(0, 0, -m_scale));
-		fprintf(stderr, "<key_callback> M pressed\n");
+		fprintf(stdout, "<key_callback> M pressed\n");
 	}
 
 	Camera& m_camera;
 	float m_scale;
 };
 
-template <class T>
+template <class S>
 class ShapeKeyListener : KeyListener
 {
 public:
-	ShapeKeyListener(GLFWwindow* window, Shape<T>& shape, float rotate = 45.0f, float scale = 2.0f)
+	ShapeKeyListener(GLFWwindow* window, S& shape, float rotate = 45.0f, float scale = 2.0f)
 		: m_shape(shape),
 		  m_rotate(rotate),
 		  m_scale(scale)
@@ -149,13 +149,13 @@ private:
 	void bigger()
 	{
 		m_shape.scale(glm::vec3(m_scale));
-		fprintf(stderr, "<key_callback> B pressed\n");
+		fprintf(stdout, "<key_callback> B pressed\n");
 	}
 
 	void smaller()
 	{
 		m_shape.scale(glm::vec3(1.0f / m_scale));
-		fprintf(stderr, "<key_callback> S pressed\n");
+		fprintf(stdout, "<key_callback> S pressed\n");
 	}
 
 	void rotateX()
@@ -179,7 +179,7 @@ private:
 		m_shape.wireframe(m_wireframe);
 	}
 
-	Shape<T>& m_shape;
+	S& m_shape;
 	float m_rotate;
 	float m_scale;
 	bool m_wireframe;

@@ -34,7 +34,7 @@ private:
 
 	void updateLight(const float& totalTime, const float& elapsedTime)
 	{
-		m_box->transformTo(m_transform);
+		m_box->transformTo(this->pose());
 	}
 
 	BasicColorBox* m_box;
