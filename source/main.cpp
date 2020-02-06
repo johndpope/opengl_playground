@@ -17,7 +17,7 @@ void frameBufferSizeCallback(GLFWwindow* window, int width, int height)
 }
 
 void GLAPIENTRY
-MessageCallback(GLenum source,
+messageCallback(GLenum source,
 	GLenum type,
 	GLuint id,
 	GLenum severity,
@@ -60,7 +60,7 @@ GLFWwindow* initWindow()
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_DEBUG_OUTPUT);
 
-	glDebugMessageCallback(MessageCallback, 0);
+	glDebugMessageCallback(messageCallback, 0);
 
 	return window;
 }
@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 	PerspectiveCamera camera(SCR_WIDTH, SCR_HEIGHT, 45.0f, 0.1f, 50.0f);
 	camera.init();
 	camera.translate(glm::vec3(0, 0, 10.0f));
-	camera.lookAt(glm::vec3(0, 0, 0));
+	camera.lockLookPoint(glm::vec3(0, 0, 0));
 	CameraKeyListener(window, camera);
 
 	UniqueTextureBox box1(textureNames, glm::vec3(1.0f));
@@ -101,14 +101,16 @@ int main(int argc, char **argv)
 
 	LightBox light;
 	light.init();
-	light.translate(glm::vec3(-2.0f, -2.0f, 2.0f));
-	light.translateTo(glm::vec3(2.0f, 2.0f, 2.0f), 10.0f);
+	light.orbit(glm::vec3(0, 0, 1.0f), glm::vec3(), 3.0f, 0.5f);
+	camera.orbit(glm::vec3(0, 1.0f, 0.), glm::vec3(), 3.0f, 0.5f);
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
 		glClearColor(0.0f, 0.4f, 0.6f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		camera.update();
 
 		box1.update(camera, light);
 		box2.update(camera, light);

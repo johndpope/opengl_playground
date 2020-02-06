@@ -4,6 +4,8 @@
 #include <glfw3.h>
 #include <glm\gtx\matrix_decompose.hpp>
 #include <glm\gtx\matrix_interpolation.hpp>
+#include <functional>
+#include <stack>
 #include <shader.h>
 
 class UpdatableObject
@@ -153,29 +155,52 @@ public:
 
 	void transformTo(const glm::mat4& targetTransform, const float& duration = -1.0f)
 	{
-		if (duration < 0.0f)
-		{
-			m_pose = targetTransform;
-		}
-		else
-		{
-			m_startTransform = m_pose;
-			m_targetTransform = targetTransform;
-			m_targetDuration = duration;
-			m_targetDurationTimer = duration;
-		}
+		OneShotMovementData* data = new OneShotMovementData();
+
+		data->update = UpdateMovement(std::bind(&MovableObject::updateOneShotMovement, this, std::placeholders::_1));
+		data->duration = duration;
+		data->remainingTime = data->duration;
+		data->startTransform = m_pose;
+		data->targetTransform = targetTransform;
+
+		m_moveDatas.push(data);
+	}
+
+	void orbit(const glm::vec3& targetAxis, const glm::vec3& center, const float& radius, const float& speed, const float& duration = -1.0f)
+	{
+		OrbitMovementData* data = new OrbitMovementData();
+
+		data->update = UpdateMovement(std::bind(&MovableObject::updateOrbitMovement, this, std::placeholders::_1));
+		data->duration = duration < 0.0 ? (float)((unsigned int)-1) : duration;
+		data->remainingTime = data->duration;
+		data->center = center;
+		data->radius = radius;
+		data->speed = speed;
+		data->targetAxis = targetAxis;
+
+		m_moveDatas.push(data);
 	}
 
 protected:
 	void updateUpdatable(const float& totalTime, const float& elapsedTime)
 	{
-		if (m_targetDurationTimer > 0.0f)
+		if (!m_moveDatas.empty())
 		{
-			m_targetDurationTimer -= elapsedTime;
-			m_targetDurationTimer = glm::max(m_targetDurationTimer, 0.0f);
+			void* moveData = m_moveDatas.top();
 
-			float delta = (m_targetDuration - m_targetDurationTimer) / m_targetDuration;
-			m_pose = glm::interpolate(m_startTransform, m_targetTransform, delta);
+			MovementData* data = static_cast<MovementData*>(moveData);
+			data->totalTime = totalTime;
+			data->elapsedTime = elapsedTime;
+			data->remainingTime -= elapsedTime;
+			data->remainingTime = glm::max(data->remainingTime, 0.0f);
+
+			m_pose = data->update(data);
+
+			if (data->remainingTime == 0.0f)
+			{
+				m_moveDatas.pop();
+				delete moveData;
+			}
 		}
 
 		this->updateMovable(totalTime, elapsedTime);
@@ -192,6 +217,68 @@ protected:
 	virtual void updateMovable(const float& totalTime, const float& elapsedTime) = 0;
 
 private:
+	typedef std::function<glm::mat4(void*)> UpdateMovement;
+
+	struct MovementData
+	{
+		UpdateMovement update;
+		float totalTime;
+		float elapsedTime;
+		float duration;
+		float remainingTime;
+	};
+
+	struct OneShotMovementData : MovementData
+	{
+		glm::mat4 startTransform;
+		glm::mat4 targetTransform;
+	};
+
+	struct OrbitMovementData : MovementData
+	{
+		glm::vec3 targetAxis;
+		glm::vec3 center;
+		float radius;
+		float speed;
+	};
+
+	glm::mat4 updateOneShotMovement(void* movementData)
+	{
+		OneShotMovementData* data = static_cast<OneShotMovementData*>(movementData);
+
+		float delta = (data->duration - data->remainingTime) / data->duration;
+		return glm::interpolate(data->startTransform, data->targetTransform, delta);
+	}
+
+	glm::mat4 updateOrbitMovement(void* movementData)
+	{
+		OrbitMovementData* data = static_cast<OrbitMovementData*>(movementData);
+
+		// Require 2 perpendicular vectors to rotational axis
+		glm::vec3 n = glm::normalize(data->targetAxis);
+		glm::vec3 a = glm::normalize(glm::vec3(1, 1, -1 * (n.x + n.y) / n.z));
+		glm::vec3 b = glm::normalize(glm::cross(a, n));
+
+		float t = data->duration - data->remainingTime;
+		t = (t == 0.0f) ? data->totalTime : t;
+
+		float theta = data->speed * t;
+		float x = data->radius * (glm::cos(theta) * a.x + glm::sin(theta) * b.x);
+		float y = data->radius * (glm::cos(theta) * a.y + glm::sin(theta) * b.y);
+		float z = data->radius * (glm::cos(theta) * a.z + glm::sin(theta) * b.z);
+
+		glm::vec3 position = glm::vec3(x, y, z) + data->center;
+		glm::mat4 rotation = glm::lookAt(position, data->center, glm::vec3(0, 1.0f, 0));
+		
+		if (position != this->translation())
+		{
+			this->translateTo(position, 0.5f);
+			return m_pose;
+		}
+
+		return computeTransform(glm::vec3(1.0f), rotation, position);
+	}
+
 	glm::mat4 computeTransform(const glm::vec3& scale, const glm::mat4& rotation, const glm::vec3& translation)
 	{
 		glm::mat4 transform = glm::mat4();
@@ -204,8 +291,5 @@ private:
 	}
 
 	glm::mat4 m_pose;
-	glm::mat4 m_startTransform;
-	glm::mat4 m_targetTransform;
-	float m_targetDuration;
-	float m_targetDurationTimer;
+	std::stack<void*> m_moveDatas;
 };
