@@ -20,3 +20,10 @@ private:
 		this->updateLight(totalTime, elapsedTime);
 	}
 };
+
+class MockLight : public Light
+{
+private:
+	void initLight(const GLuint& vao, const GLuint& vbo) { };
+	void updateLight(const float& totalTime, const float& elapsedTime) { };
+};

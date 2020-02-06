@@ -11,9 +11,23 @@ std::map<GLFWwindow*, std::map<int, std::vector<KeyListener::KeyCallbackFunc>>> 
 const GLuint SCR_WIDTH = 1200;
 const GLuint SCR_HEIGHT = 1200;
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void frameBufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+}
+
+void GLAPIENTRY
+MessageCallback(GLenum source,
+	GLenum type,
+	GLuint id,
+	GLenum severity,
+	GLsizei length,
+	const GLchar* message,
+	const void* userParam)
+{
+	fprintf(stderr, "GL CALLBACK: %s source = 0x%x, type = 0x%x, severity = 0x%x, message = %s\n",
+		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
+		source, type, severity, message);
 }
 
 GLFWwindow* initWindow()
@@ -35,7 +49,7 @@ GLFWwindow* initWindow()
 	}
 
 	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetFramebufferSizeCallback(window, frameBufferSizeCallback);
 
 	GLenum glerr = glewInit();
 	if (GLEW_OK != glerr)
@@ -44,6 +58,9 @@ GLFWwindow* initWindow()
 	}
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEBUG_OUTPUT);
+
+	glDebugMessageCallback(MessageCallback, 0);
 
 	return window;
 }
@@ -62,20 +79,30 @@ int main(int argc, char **argv)
 	};
 
 	PerspectiveCamera camera(SCR_WIDTH, SCR_HEIGHT, 45.0f, 0.1f, 50.0f);
-	UniqueTextureBox controlBox(textureNames, glm::vec3(1.0f));
-	LightBox light;
-
-	controlBox.init();
-	light.init();
 	camera.init();
-
 	camera.translate(glm::vec3(0, 0, 10.0f));
 	camera.lookAt(glm::vec3(0, 0, 0));
+	CameraKeyListener(window, camera);
+
+	UniqueTextureBox box1(textureNames, glm::vec3(1.0f));
+	box1.init();
+	box1.translate(glm::vec3(-0.5f, 0, 0));
+	ShapeKeyListener<UniqueTextureBox>(window, box1);
+
+	ColorBox box2(glm::vec3(0.5f, 1.0f, 0.25f), glm::vec3(1.0f));
+	box2.init();
+	box2.translate(glm::vec3(0.5f, 0, 0));
+	ShapeKeyListener<ColorBox>(window, box2);
+
+	BasicColorBox box3(glm::vec3(1.0f, 0.0, 0.25f), glm::vec3(1.0f));
+	box3.init();
+	box3.translate(glm::vec3(0.0, 1.0f, 0));
+	ShapeKeyListener<BasicColorBox>(window, box3);
+
+	LightBox light;
+	light.init();
 	light.translate(glm::vec3(-2.0f, -2.0f, 2.0f));
 	light.translateTo(glm::vec3(2.0f, 2.0f, 2.0f), 10.0f);
-
-	CameraKeyListener(window, camera);
-	ShapeKeyListener<TextureShader>(window, controlBox);
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))
@@ -83,8 +110,11 @@ int main(int argc, char **argv)
 		glClearColor(0.0f, 0.4f, 0.6f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//light.update(camera);
-		controlBox.update(camera, light);
+		box1.update(camera, light);
+		box2.update(camera, light);
+		box3.update(camera, light);
+
+		light.update(camera);
 
 		glFlush();
 		glfwSwapBuffers(window);

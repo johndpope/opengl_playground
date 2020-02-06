@@ -52,6 +52,7 @@ private:
 	{
 		m_wireframe = GL_FILL;
 
+		m_shader->use();
 		this->initShape(vao, vbo);
 	}
 
@@ -59,6 +60,7 @@ private:
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, m_wireframe);
 
+		m_shader->use();
 		this->updateShape(totalTime, elapsedTime, *m_camera, *m_light);
 	}
 

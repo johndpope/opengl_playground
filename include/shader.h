@@ -13,10 +13,10 @@ public:
 		this->use();
 		m_pid = this->getProgram();
 
-		this->printAllAttributes();
+		this->printActiveInfo();
 	}
 
-	void printAllAttributes()
+	void printActiveInfo()
 	{
 		const GLsizei bufferSize = 16;
 		GLint size;
@@ -32,6 +32,18 @@ public:
 		{
 			glGetActiveAttrib(m_pid, (GLuint)i, bufferSize, &length, &size, &type, name);
 			printf("Attribute #%d Type: %u Name: %s\n", i, type, name);
+		}
+
+		printf("\n");
+
+		glGetProgramiv(m_pid, GL_ACTIVE_UNIFORMS, &count);
+		printf("Active Uniforms: %d\n", count);
+
+		for (int i = 0; i < count; i++)
+		{
+			glGetActiveUniform(m_pid, (GLuint)i, bufferSize, &length, &size, &type, name);
+
+			printf("Uniform #%d Type: %u Name: %s\n", i, type, name);
 		}
 
 		printf("\n");
@@ -61,7 +73,7 @@ protected:
 
 		if (loc == (unsigned int)-1)
 		{
-			fprintf(stderr, "Failed to set buffer parameter: %s\n", name);
+			fprintf(stderr, "Failed to set buffer parameter: %s\n", name.c_str());
 		}
 	}
 

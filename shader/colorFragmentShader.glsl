@@ -1,7 +1,5 @@
 #version 440 core
 
-layout(location = 0) out vec4 vLightFragColor;
-
 uniform float fShininess;
 uniform vec3 vAmbientColor;
 uniform vec3 vDiffuseColor;
@@ -13,6 +11,8 @@ uniform mat4 mModelView;
 smooth in vec3 vEyeSpaceNormal;
 smooth in vec3 vEyeSpacePosition;
 smooth in vec3 vFragColor;
+
+out vec4 vOutColor;
 
 void main()
 {
@@ -27,5 +27,5 @@ void main()
 	vec3 vDiffuse  = vDiffuseColor * diff * vFragColor;
 	vec3 vSpecular = vSpecularColor * spec * vFragColor;
 
-	vLightFragColor = vec4(vAmbient + vDiffuse + vSpecular, 1.0);
+	vOutColor = vec4(vAmbient + vDiffuse + vSpecular, 1.0);
 }

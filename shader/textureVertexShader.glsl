@@ -16,9 +16,10 @@ out vec2 vFragTexCoord;
 void main()
 {
 	vec4 hvPosition = vec4(vPosition, 1.0);
+	gl_Position = mModelViewProj * hvPosition;
+
 	vEyeSpacePosition = (mModelView * hvPosition).xyz;
 	vEyeSpaceNormal = mModelViewNorm * vNormal;
-	gl_Position = mModelViewProj * hvPosition;
 
 	vFragTexCoord = vTexCoord;
 }

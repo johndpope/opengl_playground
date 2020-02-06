@@ -199,7 +199,7 @@ private:
 	{
 		glm::mat4 modelView = camera.pose() * this->pose();
 		glm::mat4 modelViewProj = camera.projection() * modelView;
-		glm::mat3 modelViewNorm = glm::inverseTranspose(glm::mat3(modelView));
+		glm::mat3 modelViewNorm = glm::mat3(glm::extractMatrixRotation(modelView));
 
 		m_shader->setModelView(modelView);
 		m_shader->setModelViewProjection(modelViewProj);
@@ -273,7 +273,7 @@ private:
 	{
 		glm::mat4 modelView = camera.pose() * this->pose();
 		glm::mat4 modelViewProj = camera.projection() * modelView;
-		glm::mat3 modelViewNorm = glm::inverseTranspose(glm::mat3(modelView));
+		glm::mat3 modelViewNorm = glm::mat3(glm::extractMatrixRotation(modelView));
 
 		m_shader->setModelView(modelView);
 		m_shader->setModelViewProjection(modelViewProj);

@@ -15,11 +15,6 @@ protected:
 
 	static void registerCallback(GLFWwindow* window, int key, KeyCallbackFunc func)
 	{
-		if (registered(window, key, func))
-		{
-			return;
-		}
-
 		if (m_windowKeyMap.find(window) == m_windowKeyMap.end())
 		{
 			glfwSetKeyCallback(window, &KeyListener::keyCallback);
@@ -53,7 +48,7 @@ protected:
 
 		if (m_windowKeyMap[window].find(key) == m_windowKeyMap[window].end())
 		{
-			return false;;
+			return false;
 		}
 
 		for (KeyCallbackFunc& currentFunc : m_windowKeyMap[window][key])
@@ -90,6 +85,11 @@ private:
 	{
 		typedef void (fnType)();
 		fnType ** fnPointer = f.template target<fnType*>();
+		if (fnPointer == nullptr)
+		{
+			return -1;
+		}
+
 		return (size_t)*fnPointer;
 	}
 
