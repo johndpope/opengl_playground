@@ -1,0 +1,15 @@
+Controls available are:
+
+A : Walk left
+S : Walk back
+W : Walk forward
+D : Walk right
+X : Rotate shape about X axis
+Y : Rotate shape about Y axis
+Z : Rotate shape about Z axis
++ : Scale up shape
+- : Scale down shape
+J : Rotate camera to the left
+L : Rotate camera to the right
+
+Link to video: https://photos.app.goo.gl/RZ83cwxGExLdtGacA
