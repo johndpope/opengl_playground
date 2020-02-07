@@ -54,6 +54,11 @@ public:
 		this->setBufferParameter("vPosition", 3, stride, offset);
 	}
 
+	void setView(const glm::mat4& view)
+	{
+		glUniformMatrix4fv(glGetUniformLocation(m_pid, "mView"), 1, GL_FALSE, &view[0][0]);
+	}
+
 	void setModelView(const glm::mat4& modelView)
 	{
 		glUniformMatrix4fv(glGetUniformLocation(m_pid, "mModelView"), 1, GL_FALSE, &modelView[0][0]);
@@ -85,11 +90,6 @@ class LightingShader : public ShaderBase
 public:
 	LightingShader(std::string vertexShader, std::string fragmentShader) :
 		ShaderBase(vertexShader, fragmentShader) { }
-
-	void setModelViewNormal(const glm::mat4& modelViewNormal)
-	{
-		glUniformMatrix3fv(glGetUniformLocation(m_pid, "mModelViewNorm"), 1, GL_FALSE, &modelViewNormal[0][0]);
-	}
 
 	void setLightPosition(const glm::vec3& lightPosition)
 	{

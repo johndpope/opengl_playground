@@ -6,6 +6,7 @@
 #include <material.h>
 #include <shader.h>
 #include <shape.h>
+#include <ctime>
 #include <vector>
 
 #ifndef STBI_INCLUDE_STB_IMAGE_H
@@ -169,7 +170,7 @@ public:
 		: Box(new ColorShader(), size),
 		  m_color(color)
 	{
-		srand(glfwGetTime());
+		srand(time(NULL));
 
 		m_material.shininess = rand() / (float)RAND_MAX;
 		m_material.ambientColor = glm::vec3(0.1f, 0.1f, 0.1f);// glm::vec3(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX);
@@ -201,9 +202,9 @@ private:
 		glm::mat4 modelViewProj = camera.projection() * modelView;
 		glm::mat3 modelViewNorm = glm::mat3(glm::extractMatrixRotation(modelView));
 
+		m_shader->setView(camera.pose());
 		m_shader->setModelView(modelView);
 		m_shader->setModelViewProjection(modelViewProj);
-		m_shader->setModelViewNormal(modelViewNorm);
 		m_shader->setLightPosition(light.translation());
 
 		m_shader->setMaterial(m_material);
@@ -220,7 +221,7 @@ public:
 	UniqueTextureBox(const std::string texturePaths[NUM_BOX_SIDES], glm::vec3 size)
 		: Box(new TextureShader(), size)
 	{
-		srand(glfwGetTime());
+		srand(time(NULL));
 
 		for (int i = 0; i < NUM_BOX_SIDES; i++)
 		{
@@ -275,9 +276,9 @@ private:
 		glm::mat4 modelViewProj = camera.projection() * modelView;
 		glm::mat3 modelViewNorm = glm::mat3(glm::extractMatrixRotation(modelView));
 
+		m_shader->setView(camera.pose());
 		m_shader->setModelView(modelView);
 		m_shader->setModelViewProjection(modelViewProj);
-		m_shader->setModelViewNormal(modelViewNorm);
 		m_shader->setLightPosition(light.translation());
 
 		for (int i = 0; i < NUM_BOX_SIDES; i++)
