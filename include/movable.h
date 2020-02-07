@@ -288,6 +288,8 @@ private:
 
 		glm::vec3 position = glm::vec3(x, y, z) + data->center;
 
+		data->targetAxis = glm::rotate(glm::mat4(), (float)glm::radians(data->speed * 0.01f), a) * glm::vec4(n, 1.0f);
+
 		return glm::translate(glm::mat4(), position);
 	}
 
