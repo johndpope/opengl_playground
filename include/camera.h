@@ -34,8 +34,8 @@ public:
 
 private:
 	void initMovable(const GLuint& vao, const GLuint& vbo) { }
-	void updateMovable(const float& totalTime, const float& elapsedTime) 
-	{ 
+	void updateMovable(const float& totalTime, const float& frameTime)
+	{
 		if (m_lockPointEnabled)
 		{
 			this->lookAt(m_lockPoint);

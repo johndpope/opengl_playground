@@ -34,7 +34,7 @@ protected:
 	virtual ~Box() = default;
 
 	virtual void initBox(const GLuint& vao, const GLuint& vbo) = 0;
-	virtual void updateBox(const float& totalTime, const float& elapsedTime, const Camera& camera, const Light& light) = 0;
+	virtual void updateBox(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light) = 0;
 	virtual void generateCustomBox(float vertices[396], glm::vec3& size)
 	{
 		this->generateBox(vertices, size);
@@ -121,9 +121,9 @@ private:
 		this->initBox(vao, vbo);
 	}
 
-	void updateShape(const float& totalTime, const float& elapsedTime, const Camera& camera, const Light& light)
+	void updateShape(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light)
 	{
-		this->updateBox(totalTime, elapsedTime, camera, light);
+		this->updateBox(totalTime, frameTime, camera, light);
 	}
 
 	glm::vec3 m_size;
@@ -152,7 +152,7 @@ private:
 		m_shader->setBufferColor(11, 8);
 	}
 
-	void updateBox(const float& totalTime, const float& elapsedTime, const Camera& camera, const Light& light)
+	void updateBox(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light)
 	{
 		glm::mat4 modelViewProj = camera.projection() * camera.pose() * this->pose();
 		m_shader->setModelViewProjection(modelViewProj);
@@ -195,7 +195,7 @@ private:
 		m_shader->setBufferColor(11, 8);
 	}
 
-	void updateBox(const float& totalTime, const float& elapsedTime, const Camera& camera, const Light& light)
+	void updateBox(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light)
 	{
 		glm::mat4 modelView = camera.pose() * this->pose();
 		glm::mat4 modelViewProj = camera.projection() * modelView;
@@ -269,7 +269,7 @@ private:
 		}
 	}
 
-	void updateBox(const float& totalTime, const float& elapsedTime, const Camera& camera, const Light& light)
+	void updateBox(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light)
 	{
 		glm::mat4 modelView = camera.pose() * this->pose();
 		glm::mat4 modelViewProj = camera.projection() * modelView;

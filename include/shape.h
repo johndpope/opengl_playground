@@ -40,7 +40,7 @@ public:
 
 protected:
 	virtual void initShape(const GLuint& vao, const GLuint& vbo) = 0;
-	virtual void updateShape(const float& totalTime, const float& elapsedTime, const Camera& camera, const Light& light) = 0;
+	virtual void updateShape(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light) = 0;
 
 	Shader* m_shader;
 	GLenum m_wireframe;
@@ -56,12 +56,12 @@ private:
 		this->initShape(vao, vbo);
 	}
 
-	void updateMovable(const float& totalTime, const float& elapsedTime)
+	void updateMovable(const float& totalTime, const float& frameTime)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, m_wireframe);
 
 		m_shader->use();
-		this->updateShape(totalTime, elapsedTime, *m_camera, *m_light);
+		this->updateShape(totalTime, frameTime, *m_camera, *m_light);
 	}
 
 	const Camera* m_camera;

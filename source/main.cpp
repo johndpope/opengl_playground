@@ -101,8 +101,8 @@ int main(int argc, char **argv)
 
 	LightBox light;
 	light.init();
-	light.orbit(glm::vec3(0, 0, 1.0f), glm::vec3(), 3.0f, 0.5f);
-	camera.orbit(glm::vec3(0, 1.0f, 0.), glm::vec3(), 3.0f, 0.5f);
+	light.orbit(glm::vec3(0, 0, 1.0f), glm::vec3(0, 0, 2.0f), 3.0f, 3.0f);
+	//camera.orbit(glm::vec3(0, 1.0f, 0), glm::vec3(), 3.0f, 0.5f);
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))

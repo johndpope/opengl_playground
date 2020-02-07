@@ -37,10 +37,10 @@ public:
 	void update()
 	{
 		m_totalTime = glfwGetTime() - m_startTime;
-		float elapsedTime = m_totalTime - m_lastTotalTime;
+		float frameTime = m_totalTime - m_lastTotalTime;
 
 		glBindVertexArray(m_vao);
-		this->updateUpdatable(m_totalTime, elapsedTime);
+		this->updateUpdatable(m_totalTime, frameTime);
 		glBindVertexArray(0);
 
 		m_lastTotalTime = m_totalTime;
@@ -50,7 +50,7 @@ protected:
 	virtual ~UpdatableObject() = default;
 
 	virtual void initUpdatable(const GLuint& vao, const GLuint& vbo) = 0;
-	virtual void updateUpdatable(const float& totalTime, const float& elapsedTime) = 0;
+	virtual void updateUpdatable(const float& totalTime, const float& frameTime) = 0;
 
 private:
 	CShader* m_shader;
@@ -157,9 +157,8 @@ public:
 	{
 		OneShotMovementData* data = new OneShotMovementData();
 
-		data->update = UpdateMovement(std::bind(&MovableObject::updateOneShotMovement, this, std::placeholders::_1));
+		data->update = UpdateMovement(std::bind(&MovableObject::computeOneShotMovement, this, std::placeholders::_1));
 		data->duration = duration;
-		data->remainingTime = data->duration;
 		data->startTransform = m_pose;
 		data->targetTransform = targetTransform;
 
@@ -170,19 +169,20 @@ public:
 	{
 		OrbitMovementData* data = new OrbitMovementData();
 
-		data->update = UpdateMovement(std::bind(&MovableObject::updateOrbitMovement, this, std::placeholders::_1));
+		data->update = UpdateMovement(std::bind(&MovableObject::computeOrbitMovement, this, std::placeholders::_1));
 		data->duration = duration < 0.0 ? (float)((unsigned int)-1) : duration;
-		data->remainingTime = data->duration;
 		data->center = center;
 		data->radius = radius;
 		data->speed = speed;
 		data->targetAxis = targetAxis;
 
 		m_moveDatas.push(data);
+
+		this->transformTo(this->computeOrbitMovement(data), 0.5f);
 	}
 
 protected:
-	void updateUpdatable(const float& totalTime, const float& elapsedTime)
+	void updateUpdatable(const float& totalTime, const float& frameTime)
 	{
 		if (!m_moveDatas.empty())
 		{
@@ -190,20 +190,19 @@ protected:
 
 			MovementData* data = static_cast<MovementData*>(moveData);
 			data->totalTime = totalTime;
-			data->elapsedTime = elapsedTime;
-			data->remainingTime -= elapsedTime;
-			data->remainingTime = glm::max(data->remainingTime, 0.0f);
+			data->frameTime = frameTime;
+			data->elapsedTime += frameTime;
 
 			m_pose = data->update(data);
 
-			if (data->remainingTime == 0.0f)
+			if (data->elapsedTime > data->duration)
 			{
 				m_moveDatas.pop();
 				delete moveData;
 			}
 		}
 
-		this->updateMovable(totalTime, elapsedTime);
+		this->updateMovable(totalTime, frameTime);
 	}
 
 	void initUpdatable(const GLuint& vao, const GLuint& vbo)
@@ -214,7 +213,7 @@ protected:
 	virtual ~MovableObject() = default;
 
 	virtual void initMovable(const GLuint& vao, const GLuint& vbo) = 0;
-	virtual void updateMovable(const float& totalTime, const float& elapsedTime) = 0;
+	virtual void updateMovable(const float& totalTime, const float& frameTime) = 0;
 
 private:
 	typedef std::function<glm::mat4(void*)> UpdateMovement;
@@ -223,9 +222,9 @@ private:
 	{
 		UpdateMovement update;
 		float totalTime;
-		float elapsedTime;
+		float frameTime;
 		float duration;
-		float remainingTime;
+		float elapsedTime = 0.0f;
 	};
 
 	struct OneShotMovementData : MovementData
@@ -242,15 +241,15 @@ private:
 		float speed;
 	};
 
-	glm::mat4 updateOneShotMovement(void* movementData)
+	glm::mat4 computeOneShotMovement(void* movementData)
 	{
 		OneShotMovementData* data = static_cast<OneShotMovementData*>(movementData);
 
-		float delta = (data->duration - data->remainingTime) / data->duration;
+		float delta = (data->duration <= 0.0f) ? 1.0f : data->elapsedTime / data->duration;
 		return glm::interpolate(data->startTransform, data->targetTransform, delta);
 	}
 
-	glm::mat4 updateOrbitMovement(void* movementData)
+	glm::mat4 computeOrbitMovement(void* movementData)
 	{
 		OrbitMovementData* data = static_cast<OrbitMovementData*>(movementData);
 
@@ -259,24 +258,14 @@ private:
 		glm::vec3 a = glm::normalize(glm::vec3(1, 1, -1 * (n.x + n.y) / n.z));
 		glm::vec3 b = glm::normalize(glm::cross(a, n));
 
-		float t = data->duration - data->remainingTime;
-		t = (t == 0.0f) ? data->totalTime : t;
-
-		float theta = data->speed * t;
+		float theta = data->speed * data->elapsedTime;
 		float x = data->radius * (glm::cos(theta) * a.x + glm::sin(theta) * b.x);
 		float y = data->radius * (glm::cos(theta) * a.y + glm::sin(theta) * b.y);
 		float z = data->radius * (glm::cos(theta) * a.z + glm::sin(theta) * b.z);
 
 		glm::vec3 position = glm::vec3(x, y, z) + data->center;
-		glm::mat4 rotation = glm::lookAt(position, data->center, glm::vec3(0, 1.0f, 0));
-		
-		if (position != this->translation())
-		{
-			this->translateTo(position, 0.5f);
-			return m_pose;
-		}
 
-		return computeTransform(glm::vec3(1.0f), rotation, position);
+		return glm::translate(glm::mat4(), position);
 	}
 
 	glm::mat4 computeTransform(const glm::vec3& scale, const glm::mat4& rotation, const glm::vec3& translation)

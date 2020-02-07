@@ -32,7 +32,7 @@ private:
 		m_box->init();
 	}
 
-	void updateLight(const float& totalTime, const float& elapsedTime)
+	void updateLight(const float& totalTime, const float& frameTime)
 	{
 		m_box->transformTo(this->pose());
 	}
