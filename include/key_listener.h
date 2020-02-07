@@ -154,8 +154,14 @@ public:
 		registerCallback(window, GLFW_KEY_EQUAL, GLFW_PRESS, KeyCallbackFunc(std::bind(&ShapeKeyListener::bigger, this)));
 		registerCallback(window, GLFW_KEY_MINUS, GLFW_PRESS, KeyCallbackFunc(std::bind(&ShapeKeyListener::smaller, this)));
 		registerCallback(window, GLFW_KEY_X, GLFW_PRESS, KeyCallbackFunc(std::bind(&ShapeKeyListener::rotateX, this)));
+		registerCallback(window, GLFW_KEY_X, GLFW_REPEAT, KeyCallbackFunc(std::bind(&ShapeKeyListener::rotateX, this)));
+		registerCallback(window, GLFW_KEY_X, GLFW_RELEASE, KeyCallbackFunc(std::bind(&ShapeKeyListener::rotateX, this)));
 		registerCallback(window, GLFW_KEY_Y, GLFW_PRESS, KeyCallbackFunc(std::bind(&ShapeKeyListener::rotateY, this)));
+		registerCallback(window, GLFW_KEY_Y, GLFW_REPEAT, KeyCallbackFunc(std::bind(&ShapeKeyListener::rotateY, this)));
+		registerCallback(window, GLFW_KEY_Y, GLFW_RELEASE, KeyCallbackFunc(std::bind(&ShapeKeyListener::rotateY, this)));
 		registerCallback(window, GLFW_KEY_Z, GLFW_PRESS, KeyCallbackFunc(std::bind(&ShapeKeyListener::rotateZ, this)));
+		registerCallback(window, GLFW_KEY_Z, GLFW_REPEAT, KeyCallbackFunc(std::bind(&ShapeKeyListener::rotateZ, this)));
+		registerCallback(window, GLFW_KEY_Z, GLFW_RELEASE, KeyCallbackFunc(std::bind(&ShapeKeyListener::rotateZ, this)));
 		registerCallback(window, GLFW_KEY_F, GLFW_PRESS, KeyCallbackFunc(std::bind(&ShapeKeyListener::wireframe, this)));
 	}
 

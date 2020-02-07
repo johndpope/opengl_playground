@@ -70,8 +70,8 @@ int main(int argc, char **argv)
 	GLFWwindow* window = initWindow();
 
 	std::string textureNames[NUM_BOX_SIDES] = {
-		"texture\\nyan.jpg",
 		"texture\\cat.jpg",
+		"texture\\nyan.jpg",
 		"texture\\woman.jpg",
 		"texture\\sax.jpg",
 		"texture\\gandalf.jpg",
@@ -80,22 +80,22 @@ int main(int argc, char **argv)
 
 	ColorBox box1(glm::vec3(1.0f, 0, 0), glm::vec3(1.0f));
 	box1.init();
-	box1.translate(glm::vec3(1.5f, 0, 0));
+	box1.translate(glm::vec3(2.0f, 0, 0));
 	ShapeKeyListener<ColorBox>(window, box1);
 
 	ColorBox box2(glm::vec3(0, 1.0f, 0), glm::vec3(1.0f));
 	box2.init();
-	box2.translate(glm::vec3(0, 1.5f, 0));
+	box2.translate(glm::vec3(0, 2.0f, 0));
 	ShapeKeyListener<ColorBox>(window, box2);
 
 	ColorBox box3(glm::vec3(0, 0, 1.0f), glm::vec3(1.0f));
 	box3.init();
-	box3.translate(glm::vec3(-1.5f, 0, 0));
+	box3.translate(glm::vec3(-2.0f, 0, 0));
 	ShapeKeyListener<ColorBox>(window, box3);
 
 	ColorBox box4(glm::vec3(0, 1.0f, 1.0f), glm::vec3(1.0f));
 	box4.init();
-	box4.translate(glm::vec3(0, -1.5f, 0));
+	box4.translate(glm::vec3(0, -2.0f, 0));
 	ShapeKeyListener<ColorBox>(window, box4);
 
 	MultiTextureBox box5(textureNames, glm::vec3(1.0f));
