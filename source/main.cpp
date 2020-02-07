@@ -6,7 +6,7 @@
 #include <light_shape.h>
 #include <key_listener.h>
 
-std::map<GLFWwindow*, std::map<int, std::vector<KeyListener::KeyCallbackFunc>>> KeyListener::m_windowKeyMap;
+std::map<GLFWwindow*, std::map<int, std::vector<KeyListener::KeyCallbackFuncArgs>>> KeyListener::m_windowKeyMap;
 
 const GLuint SCR_WIDTH = 1200;
 const GLuint SCR_HEIGHT = 1200;
@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 	PerspectiveCamera camera(SCR_WIDTH, SCR_HEIGHT, 45.0f, 0.1f, 50.0f);
 	camera.init();
 	camera.translate(glm::vec3(0, 0, 10.0f));
-	camera.lockLookPoint(glm::vec3(0, 0, 0));
+	camera.lookAt(glm::vec3(0, 0, 0));
 	CameraKeyListener(window, camera);
 
 	UniqueTextureBox box1(textureNames, glm::vec3(1.0f));
@@ -101,8 +101,8 @@ int main(int argc, char **argv)
 
 	LightBox light;
 	light.init();
-	light.orbit(glm::vec3(0, 0, 1.0f), glm::vec3(0, 0, 2.0f), 3.0f, 3.0f);
-	//camera.orbit(glm::vec3(0, 1.0f, 0), glm::vec3(), 3.0f, 0.5f);
+	light.translate(glm::vec3(0.0f, 0, 2.0f));
+	light.orbit(glm::vec3(0, 0, 1.0f), glm::vec3(0, 0, 2.0f), 1.0f, 3.0f);
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))

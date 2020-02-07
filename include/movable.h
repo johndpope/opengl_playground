@@ -184,7 +184,9 @@ public:
 protected:
 	void updateUpdatable(const float& totalTime, const float& frameTime)
 	{
-		if (!m_moveDatas.empty())
+		bool keepUpdating = true;
+
+		while (!m_moveDatas.empty() && keepUpdating)
 		{
 			void* moveData = m_moveDatas.top();
 
@@ -199,6 +201,10 @@ protected:
 			{
 				m_moveDatas.pop();
 				delete moveData;
+			}
+			else
+			{
+				keepUpdating = false;
 			}
 		}
 
@@ -255,7 +261,24 @@ private:
 
 		// Require 2 perpendicular vectors to rotational axis
 		glm::vec3 n = glm::normalize(data->targetAxis);
-		glm::vec3 a = glm::normalize(glm::vec3(1, 1, -1 * (n.x + n.y) / n.z));
+		glm::vec3 a;
+		if (n.x != 0.0f)
+		{
+			a = glm::normalize(glm::vec3(-1 * (n.z + n.y) / n.x, 1.0f, 1.0f));
+		}
+		else if (n.y != 0.0f)
+		{
+			a = glm::normalize(glm::vec3(1.0f, -1 * (n.x + n.z) / n.y, 1.0f));
+		}
+		else if (n.z != 0.0f)
+		{
+			a = glm::normalize(glm::vec3(1.0f, 1.0f, -1 * (n.x + n.y) / n.z));
+		}
+		else
+		{
+			fprintf(stderr, "TargetAxis is 0 vector, cannot compute orbit\n");
+		}
+
 		glm::vec3 b = glm::normalize(glm::cross(a, n));
 
 		float theta = data->speed * data->elapsedTime;
