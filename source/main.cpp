@@ -78,31 +78,40 @@ int main(int argc, char **argv)
 		"texture\\table.jpg",
 	};
 
-	PerspectiveCamera camera(SCR_WIDTH, SCR_HEIGHT, 45.0f, 0.1f, 50.0f);
-	camera.init();
-	camera.translate(glm::vec3(0, 0, 10.0f));
-	camera.lookAt(glm::vec3(0, 0, 0));
-	CameraKeyListener(window, camera);
-
-	UniqueTextureBox box1(textureNames, glm::vec3(1.0f));
+	ColorBox box1(glm::vec3(1.0f, 0, 0), glm::vec3(1.0f));
 	box1.init();
-	box1.translate(glm::vec3(-0.5f, 0, 0));
-	ShapeKeyListener<UniqueTextureBox>(window, box1);
+	box1.translate(glm::vec3(1.5f, 0, 0));
+	ShapeKeyListener<ColorBox>(window, box1);
 
-	ColorBox box2(glm::vec3(0.5f, 1.0f, 0.25f), glm::vec3(1.0f));
+	ColorBox box2(glm::vec3(0, 1.0f, 0), glm::vec3(1.0f));
 	box2.init();
-	box2.translate(glm::vec3(0.5f, 0, 0));
+	box2.translate(glm::vec3(0, 1.5f, 0));
 	ShapeKeyListener<ColorBox>(window, box2);
 
-	BasicColorBox box3(glm::vec3(1.0f, 0.0, 0.25f), glm::vec3(1.0f));
+	ColorBox box3(glm::vec3(0, 0, 1.0f), glm::vec3(1.0f));
 	box3.init();
-	box3.translate(glm::vec3(0.0, 1.0f, 0));
-	ShapeKeyListener<BasicColorBox>(window, box3);
+	box3.translate(glm::vec3(-1.5f, 0, 0));
+	ShapeKeyListener<ColorBox>(window, box3);
+
+	ColorBox box4(glm::vec3(0, 1.0f, 1.0f), glm::vec3(1.0f));
+	box4.init();
+	box4.translate(glm::vec3(0, -1.5f, 0));
+	ShapeKeyListener<ColorBox>(window, box4);
+
+	UniqueTextureBox box5(textureNames, glm::vec3(1.0f));
+	box5.init();
+	ShapeKeyListener<UniqueTextureBox>(window, box5);
 
 	LightBox light;
 	light.init();
 	light.translate(glm::vec3(0.0f, 0, 2.0f));
 	light.orbit(glm::vec3(0, 0, 1.0f), glm::vec3(0, 0, 2.0f), 1.0f, 3.0f);
+
+	PerspectiveCamera camera(SCR_WIDTH, SCR_HEIGHT, 45.0f, 0.1f, 50.0f);
+	camera.init();
+	camera.translate(glm::vec3(0, 0, 10.0f));
+	camera.lookAt(glm::vec3(0, 0, 0));
+	CameraKeyListener(window, camera);
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))
@@ -115,6 +124,8 @@ int main(int argc, char **argv)
 		box1.update(camera, light);
 		box2.update(camera, light);
 		box3.update(camera, light);
+		box4.update(camera, light);
+		box5.update(camera, light);
 
 		light.update(camera);
 
