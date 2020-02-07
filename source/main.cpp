@@ -98,9 +98,9 @@ int main(int argc, char **argv)
 	box4.translate(glm::vec3(0, -1.5f, 0));
 	ShapeKeyListener<ColorBox>(window, box4);
 
-	UniqueTextureBox box5(textureNames, glm::vec3(1.0f));
+	MultiTextureBox box5(textureNames, glm::vec3(1.0f));
 	box5.init();
-	ShapeKeyListener<UniqueTextureBox>(window, box5);
+	ShapeKeyListener<MultiTextureBox>(window, box5);
 
 	LightBox light;
 	light.init();

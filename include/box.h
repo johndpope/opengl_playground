@@ -215,10 +215,10 @@ private:
 	glm::vec3 m_color;
 };
 
-class UniqueTextureBox : public Box<TextureShader>
+class MultiTextureBox : public Box<TextureShader>
 {
 public:
-	UniqueTextureBox(const std::string texturePaths[NUM_BOX_SIDES], glm::vec3 size)
+	MultiTextureBox(const std::string texturePaths[NUM_BOX_SIDES], glm::vec3 size)
 		: Box(new TextureShader(), size)
 	{
 		srand(time(NULL));
@@ -233,7 +233,7 @@ public:
 		}
 	}
 
-	UniqueTextureBox(const TextureMaterial textureMaterials[NUM_BOX_SIDES], glm::vec3 size)
+	MultiTextureBox(const TextureMaterial textureMaterials[NUM_BOX_SIDES], glm::vec3 size)
 		: Box(new TextureShader(), size)
 	{
 		for (int i = 0; i < NUM_BOX_SIDES; i++)
