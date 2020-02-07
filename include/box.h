@@ -80,7 +80,7 @@ protected:
 			// Calculate face normal
 			glm::vec3 a = faces[i][2] - faces[i][0];
 			glm::vec3 b = faces[i][1] - faces[i][0];
-			glm::vec3 n = glm::normalize(glm::cross(a, b));
+			glm::vec3 n = glm::normalize(glm::cross(b, a));
 
 			// Iterate over vertices
 			for (int k = 0; k < 6; k++)
