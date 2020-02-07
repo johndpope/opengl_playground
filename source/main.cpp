@@ -6,8 +6,6 @@
 #include <light_shape.h>
 #include <key_listener.h>
 
-std::map<GLFWwindow*, std::map<int, std::vector<KeyListener::KeyCallbackFuncArgs>>> KeyListener::m_windowKeyMap;
-
 const GLuint SCR_WIDTH = 1200;
 const GLuint SCR_HEIGHT = 1200;
 
@@ -115,7 +113,7 @@ int main(int argc, char **argv)
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
-		glClearColor(0.0f, 0.1f, 0.1f, 1.0f);
+		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera.update();

@@ -1,18 +1,11 @@
 #pragma once
 #include <glm.hpp>
 #include <glew.h>
-#include <glm\gtc\matrix_inverse.hpp>
 #include <camera.h>
 #include <material.h>
 #include <shader.h>
 #include <shape.h>
-#include <ctime>
 #include <vector>
-
-#ifndef STBI_INCLUDE_STB_IMAGE_H
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-#endif
 
 #define NUM_BOX_SIDES 6
 template <class Shader>
@@ -133,32 +126,13 @@ private:
 class BasicColorBox : public Box<BasicColorShader>
 {
 public:
-	BasicColorBox(const glm::vec3 color, const glm::vec3& size)
-		: Box(new BasicColorShader(), size),
-		  m_color(color) { }
-
-	BasicColorBox(const glm::vec3& size)
-		: Box(new BasicColorShader(), size),
-		m_color(glm::vec3(1.0f)) { }
+	BasicColorBox(const glm::vec3 color, const glm::vec3& size);
+	BasicColorBox(const glm::vec3& size);
 
 private:
-	void generateCustomBox(float vertices[396], glm::vec3& size)
-	{
-		this->generateBox(vertices, size, &m_color);
-	}
-
-	void initBox(const GLuint& vao, const GLuint& vbo)
-	{
-		m_shader->setBufferPosition(11, 0);
-		m_shader->setBufferColor(11, 8);
-	}
-
-	void updateBox(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light)
-	{
-		glm::mat4 modelViewProj = camera.projection() * camera.pose() * this->pose();
-		m_shader->setModelViewProjection(modelViewProj);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-	}
+	void generateCustomBox(float vertices[396], glm::vec3& size);
+	void initBox(const GLuint& vao, const GLuint& vbo);
+	void updateBox(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light);
 
 	glm::vec3 m_color;
 };
@@ -166,50 +140,13 @@ private:
 class ColorBox : public Box<ColorShader>
 {
 public:
-	ColorBox(const glm::vec3 color, glm::vec3 size)
-		: Box(new ColorShader(), size),
-		  m_color(color)
-	{
-		srand(time(NULL));
-
-		m_material.shininess = rand() / (float)RAND_MAX;
-		m_material.ambientColor = glm::vec3(0.1f, 0.1f, 0.1f);// glm::vec3(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX);
-		m_material.diffuseColor = glm::vec3(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX);
-		m_material.specularColor = glm::vec3(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX);
-	}
-
-	ColorBox(const Material material, glm::vec3 size)
-		: Box(new ColorShader(), size),
-		  m_material(material),
-		  m_color(glm::vec3(1.0f)) { }
+	ColorBox(const glm::vec3 color, glm::vec3 size);
+	ColorBox(const Material material, glm::vec3 size);
 
 private:
-	void generateCustomBox(float vertices[396], glm::vec3& size)
-	{
-		this->generateBox(vertices, size, &m_color);
-	}
-
-	void initBox(const GLuint& vao, const GLuint& vbo)
-	{
-		m_shader->setBufferPosition(11, 0);
-		m_shader->setBufferNormal(11, 5);
-		m_shader->setBufferColor(11, 8);
-	}
-
-	void updateBox(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light)
-	{
-		glm::mat4 modelView = camera.pose() * this->pose();
-		glm::mat4 modelViewProj = camera.projection() * modelView;
-		glm::mat3 modelViewNorm = glm::mat3(glm::extractMatrixRotation(modelView));
-
-		m_shader->setView(camera.pose());
-		m_shader->setModelView(modelView);
-		m_shader->setModelViewProjection(modelViewProj);
-		m_shader->setLightPosition(light.translation());
-
-		m_shader->setMaterial(m_material);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-	}
+	void generateCustomBox(float vertices[396], glm::vec3& size);
+	void initBox(const GLuint& vao, const GLuint& vbo);
+	void updateBox(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light);
 
 	Material m_material;
 	glm::vec3 m_color;
@@ -218,76 +155,12 @@ private:
 class MultiTextureBox : public Box<TextureShader>
 {
 public:
-	MultiTextureBox(const std::string texturePaths[NUM_BOX_SIDES], glm::vec3 size)
-		: Box(new TextureShader(), size)
-	{
-		srand(time(NULL));
-
-		for (int i = 0; i < NUM_BOX_SIDES; i++)
-		{
-			m_textureMaterials[i].texturePath = texturePaths[i];
-			m_textureMaterials[i].material.shininess = rand() / (float)RAND_MAX;
-			m_textureMaterials[i].material.ambientColor = glm::vec3(0.1f, 0.1f, 0.1f);// glm::vec3(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX);
-			m_textureMaterials[i].material.diffuseColor = glm::vec3(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX);
-			m_textureMaterials[i].material.specularColor = glm::vec3(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX);
-		}
-	}
-
-	MultiTextureBox(const TextureMaterial textureMaterials[NUM_BOX_SIDES], glm::vec3 size)
-		: Box(new TextureShader(), size)
-	{
-		for (int i = 0; i < NUM_BOX_SIDES; i++)
-		{
-			m_textureMaterials[i] = textureMaterials[i];
-		}
-	}
+	MultiTextureBox(const std::string texturePaths[NUM_BOX_SIDES], glm::vec3 size);
+	MultiTextureBox(const TextureMaterial textureMaterials[NUM_BOX_SIDES], glm::vec3 size);
 
 private:
-	void initBox(const GLuint& vao, const GLuint& vbo)
-	{
-		m_shader->setBufferPosition(11, 0);
-		m_shader->setBufferTextureCoord(11, 3);
-		m_shader->setBufferNormal(11, 5);
-
-		glGenTextures(NUM_BOX_SIDES, m_textures);
-		for (int i = 0; i < NUM_BOX_SIDES; i++)
-		{
-			glBindTexture(GL_TEXTURE_2D, m_textures[i]);
-
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-			int width, height, nrChannels;
-			unsigned char *data = stbi_load(m_textureMaterials[i].texturePath.c_str(), &width, &height, &nrChannels, 0);
-			if (data)
-			{
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-				glGenerateMipmap(GL_TEXTURE_2D);
-				stbi_image_free(data);
-			}
-		}
-	}
-
-	void updateBox(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light)
-	{
-		glm::mat4 modelView = camera.pose() * this->pose();
-		glm::mat4 modelViewProj = camera.projection() * modelView;
-		glm::mat3 modelViewNorm = glm::mat3(glm::extractMatrixRotation(modelView));
-
-		m_shader->setView(camera.pose());
-		m_shader->setModelView(modelView);
-		m_shader->setModelViewProjection(modelViewProj);
-		m_shader->setLightPosition(light.translation());
-
-		for (int i = 0; i < NUM_BOX_SIDES; i++)
-		{
-			m_shader->setMaterial(m_textureMaterials[i].material);
-			glBindTexture(GL_TEXTURE_2D, m_textures[i]);
-			glDrawArrays(GL_TRIANGLES, 6 * i, 6);
-		}
-	}
+	void initBox(const GLuint& vao, const GLuint& vbo);
+	void updateBox(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light);
 
 	TextureMaterial m_textureMaterials[NUM_BOX_SIDES];
 	GLuint m_textures[NUM_BOX_SIDES];

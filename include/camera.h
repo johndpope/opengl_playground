@@ -1,20 +1,14 @@
 #pragma once
+#include <movable.h>
 #include <glm.hpp>
 #include <glew.h>
-#include <movable.h>
+#include <glm\gtc\matrix_transform.hpp>
 
 class Camera : public MovableObject
 {
 public:
 	virtual const glm::mat4& projection() const = 0;
-
-	void lookAt(glm::vec3 point, float duration = -1.0f)
-	{
-		glm::vec3 translation = this->translation();
-		glm::mat4 transform = glm::lookAt(translation, point, glm::vec3(0.0f, 1.0f, 0.0f));
-
-		this->transformTo(transform, duration);
-	}
+	void lookAt(glm::vec3 point, float duration = -1.0f);
 
 private:
 	void initMovable(const GLuint& vao, const GLuint& vbo) { }
@@ -31,15 +25,9 @@ public:
 		float top,
 		float verticalFov,
 		float nearClipPlane,
-		float farClipPlane)
-	{
-		m_projection = glm::ortho(left, right, bottom, top, nearClipPlane, farClipPlane);
-	}
+		float farClipPlane);
 
-	const glm::mat4& projection() const
-	{
-		return m_projection;
-	}
+	const glm::mat4& projection() const;
 
 private:
 	glm::mat4 m_projection;
@@ -53,15 +41,9 @@ public:
 		unsigned int height,
 		float verticalFov,
 		float nearClipPlane,
-		float farClipPlane)
-	{
-		m_projection = glm::perspective(glm::radians(verticalFov), width / (float)height, nearClipPlane, farClipPlane);
-	}
+		float farClipPlane);
 
-	const glm::mat4& projection() const
-	{
-		return m_projection;
-	}
+	const glm::mat4& projection() const;
 
 private:
 	glm::mat4 m_projection;

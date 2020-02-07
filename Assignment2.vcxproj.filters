@@ -76,5 +76,26 @@
     <ClCompile Include="source\main.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="source\box.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\movable.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\key_listener.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\shader.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\camera.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\light_shape.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\light.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
