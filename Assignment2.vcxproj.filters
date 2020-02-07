@@ -21,9 +21,6 @@
     <ClInclude Include="include\movable.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\recursiveSphereBuilder_ColorNormals.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\shader.h">
       <Filter>include</Filter>
     </ClInclude>

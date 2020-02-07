@@ -26,7 +26,6 @@
     <ClInclude Include="include\light_shape.h" />
     <ClInclude Include="include\material.h" />
     <ClInclude Include="include\movable.h" />
-    <ClInclude Include="include\recursiveSphereBuilder_ColorNormals.h" />
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\cshader.h" />
     <ClInclude Include="include\shape.h" />
