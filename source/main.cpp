@@ -5,6 +5,7 @@
 #include <camera.h>
 #include <light_shape.h>
 #include <key_listener.h>
+#include <uniform_grid.h>
 
 const GLuint SCR_WIDTH = 1200;
 const GLuint SCR_HEIGHT = 1200;
@@ -63,6 +64,11 @@ GLFWwindow* initWindow()
 	return window;
 }
 
+float calculation(float x, float y)
+{
+    return std::exp(-(x*x + y*y));
+}
+
 int main(int argc, char **argv)
 {
 	GLFWwindow* window = initWindow();
@@ -76,29 +82,9 @@ int main(int argc, char **argv)
 		"texture\\table.jpg",
 	};
 
-	ColorBox box1(glm::vec3(1.0f, 0, 0), glm::vec3(1.0f));
-	box1.init();
-	box1.translate(glm::vec3(2.0f, 0, 0));
-	ShapeKeyListener<ColorBox>(window, box1);
-
-	ColorBox box2(glm::vec3(0, 1.0f, 0), glm::vec3(1.0f));
-	box2.init();
-	box2.translate(glm::vec3(0, 2.0f, 0));
-	ShapeKeyListener<ColorBox>(window, box2);
-
-	ColorBox box3(glm::vec3(0, 0, 1.0f), glm::vec3(1.0f));
-	box3.init();
-	box3.translate(glm::vec3(-2.0f, 0, 0));
-	ShapeKeyListener<ColorBox>(window, box3);
-
-	ColorBox box4(glm::vec3(0, 1.0f, 1.0f), glm::vec3(1.0f));
-	box4.init();
-	box4.translate(glm::vec3(0, -2.0f, 0));
-	ShapeKeyListener<ColorBox>(window, box4);
-
-	MultiTextureBox box5(textureNames, glm::vec3(1.0f));
-	box5.init();
-	ShapeKeyListener<MultiTextureBox>(window, box5);
+    UniformGrid grid(calculation, 1000, 1000, -10.0f, -10.0f, 10.0f, 10.0f);
+    grid.init();
+	MovableKeyListener(window, grid);
 
 	LightBox light;
 	light.init();
@@ -117,13 +103,7 @@ int main(int argc, char **argv)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera.update();
-
-		box1.update(camera, light);
-		box2.update(camera, light);
-		box3.update(camera, light);
-		box4.update(camera, light);
-		box5.update(camera, light);
-
+		grid.update(camera, light);
 		light.update(camera);
 
 		glFlush();

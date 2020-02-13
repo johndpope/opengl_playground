@@ -7,6 +7,7 @@
 #include <camera.h>
 #include <shape.h>
 #include <functional>
+#include <movable.h>
 
 class KeyListener
 {
@@ -49,56 +50,74 @@ private:
 	float m_scale;
 };
 
-template <class S>
-class ShapeKeyListener : KeyListener
+class MovableKeyListener : KeyListener
 {
 public:
-	ShapeKeyListener(GLFWwindow* window, S& shape, float rotate = 45.0f, float scale = 2.0f)
-		: m_shape(shape),
+	MovableKeyListener(GLFWwindow* window, MovableObject& movable, float rotate = 1.0f, float scale = 2.0f)
+		: m_movable(movable),
 		  m_rotate(rotate),
 		  m_scale(scale)
 	{
-		registerCallback(window, GLFW_KEY_EQUAL, GLFW_PRESS, KeyCallbackFunc(std::bind(&ShapeKeyListener::bigger, this)));
-		registerCallback(window, GLFW_KEY_MINUS, GLFW_PRESS, KeyCallbackFunc(std::bind(&ShapeKeyListener::smaller, this)));
-		registerCallback(window, GLFW_KEY_X, GLFW_PRESS, KeyCallbackFunc(std::bind(&ShapeKeyListener::rotateX, this)));
-		registerCallback(window, GLFW_KEY_X, GLFW_REPEAT, KeyCallbackFunc(std::bind(&ShapeKeyListener::rotateX, this)));
-		registerCallback(window, GLFW_KEY_Y, GLFW_PRESS, KeyCallbackFunc(std::bind(&ShapeKeyListener::rotateY, this)));
-		registerCallback(window, GLFW_KEY_Y, GLFW_REPEAT, KeyCallbackFunc(std::bind(&ShapeKeyListener::rotateY, this)));
-		registerCallback(window, GLFW_KEY_Z, GLFW_PRESS, KeyCallbackFunc(std::bind(&ShapeKeyListener::rotateZ, this)));
-		registerCallback(window, GLFW_KEY_Z, GLFW_REPEAT, KeyCallbackFunc(std::bind(&ShapeKeyListener::rotateZ, this)));
+		registerCallback(window, GLFW_KEY_EQUAL, GLFW_PRESS, KeyCallbackFunc(std::bind(&MovableKeyListener::bigger, this)));
+		registerCallback(window, GLFW_KEY_MINUS, GLFW_PRESS, KeyCallbackFunc(std::bind(&MovableKeyListener::smaller, this)));
+		registerCallback(window, GLFW_KEY_X, GLFW_PRESS, KeyCallbackFunc(std::bind(&MovableKeyListener::rotateX, this)));
+		registerCallback(window, GLFW_KEY_X, GLFW_REPEAT, KeyCallbackFunc(std::bind(&MovableKeyListener::rotateX, this)));
+		registerCallback(window, GLFW_KEY_Y, GLFW_PRESS, KeyCallbackFunc(std::bind(&MovableKeyListener::rotateY, this)));
+		registerCallback(window, GLFW_KEY_Y, GLFW_REPEAT, KeyCallbackFunc(std::bind(&MovableKeyListener::rotateY, this)));
+		registerCallback(window, GLFW_KEY_Z, GLFW_PRESS, KeyCallbackFunc(std::bind(&MovableKeyListener::rotateZ, this)));
+		registerCallback(window, GLFW_KEY_Z, GLFW_REPEAT, KeyCallbackFunc(std::bind(&MovableKeyListener::rotateZ, this)));
+
+		m_rotate = rotate;
+	}
+
+	~MovableKeyListener() = default;
+
+private:
+	void bigger()
+	{
+		m_movable.scale(glm::vec3(m_scale));
+		fprintf(stdout, "<key_callback> + pressed\n");
+	}
+
+	void smaller()
+	{
+		m_movable.scale(glm::vec3(1.0f / m_scale));
+		fprintf(stdout, "<key_callback> - pressed\n");
+	}
+
+	void rotateX()
+	{
+		m_movable.rotate(glm::vec3(1.0f, 0, 0), m_rotate);
+	}
+
+	void rotateY()
+	{
+		m_movable.rotate(glm::vec3(0, 1.0f, 0), m_rotate);
+	}
+
+	void rotateZ()
+	{
+		m_movable.rotate(glm::vec3(0, 0, 1.0f), m_rotate);
+	}
+
+	MovableObject& m_movable;
+	float m_rotate;
+	float m_scale;
+};
+
+template <class S>
+class ShapeKeyListener : MovableKeyListener
+{
+public:
+	ShapeKeyListener(GLFWwindow* window, S& shape, float rotate = 45.0f, float scale = 2.0f)
+		: m_shape(shape)
+	{
 		registerCallback(window, GLFW_KEY_F, GLFW_PRESS, KeyCallbackFunc(std::bind(&ShapeKeyListener::wireframe, this)));
 	}
 
 	~ShapeKeyListener() = default;
 
 private:
-	void bigger()
-	{
-		m_shape.scale(glm::vec3(m_scale));
-		fprintf(stdout, "<key_callback> + pressed\n");
-	}
-
-	void smaller()
-	{
-		m_shape.scale(glm::vec3(1.0f / m_scale));
-		fprintf(stdout, "<key_callback> - pressed\n");
-	}
-
-	void rotateX()
-	{
-		m_shape.rotate(glm::vec3(1.0f, 0, 0), m_rotate);
-	}
-
-	void rotateY()
-	{
-		m_shape.rotate(glm::vec3(0, 1.0f, 0), m_rotate);
-	}
-
-	void rotateZ()
-	{
-		m_shape.rotate(glm::vec3(0, 0, 1.0f), m_rotate);
-	}
-
 	void wireframe()
 	{
 		m_wireframe = !m_wireframe;
@@ -106,7 +125,5 @@ private:
 	}
 
 	S& m_shape;
-	float m_rotate;
-	float m_scale;
 	bool m_wireframe;
 };
