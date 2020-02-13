@@ -53,13 +53,15 @@ private:
 class MovableKeyListener : KeyListener
 {
 public:
-	MovableKeyListener(GLFWwindow* window, MovableObject& movable, float rotate = 1.0f, float scale = 2.0f)
+	MovableKeyListener(GLFWwindow* window, MovableObject& movable, float rotate = 1.0f, float scale = 1.01f)
 		: m_movable(movable),
 		  m_rotate(rotate),
 		  m_scale(scale)
 	{
 		registerCallback(window, GLFW_KEY_EQUAL, GLFW_PRESS, KeyCallbackFunc(std::bind(&MovableKeyListener::bigger, this)));
+		registerCallback(window, GLFW_KEY_EQUAL, GLFW_REPEAT, KeyCallbackFunc(std::bind(&MovableKeyListener::bigger, this)));
 		registerCallback(window, GLFW_KEY_MINUS, GLFW_PRESS, KeyCallbackFunc(std::bind(&MovableKeyListener::smaller, this)));
+		registerCallback(window, GLFW_KEY_MINUS, GLFW_REPEAT, KeyCallbackFunc(std::bind(&MovableKeyListener::smaller, this)));
 		registerCallback(window, GLFW_KEY_X, GLFW_PRESS, KeyCallbackFunc(std::bind(&MovableKeyListener::rotateX, this)));
 		registerCallback(window, GLFW_KEY_X, GLFW_REPEAT, KeyCallbackFunc(std::bind(&MovableKeyListener::rotateX, this)));
 		registerCallback(window, GLFW_KEY_Y, GLFW_PRESS, KeyCallbackFunc(std::bind(&MovableKeyListener::rotateY, this)));

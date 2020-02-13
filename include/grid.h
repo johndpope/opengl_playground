@@ -111,8 +111,15 @@ private:
             float point[2];
             this->getPoint(i, point);
 
-            float value = m_function(point[0], point[1]);
-            this->pointScalars().setC0Scalar(i, value);
+			try
+			{
+				float value = m_function(point[0], point[1]);
+				this->pointScalars().setC0Scalar(i, value);
+			}
+			catch (...)
+			{
+				this->pointScalars().setC0Scalar(i, INFINITY);
+			}
         }
 
 		float* vertices = this->triangulate(&glm::vec3(1.0f, 0, 0));
@@ -121,7 +128,7 @@ private:
 
         this->initGrid(vao, vbo);
 
-        //delete vertices;
+        delete vertices;
     }
 
 	void updateSurface(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light)

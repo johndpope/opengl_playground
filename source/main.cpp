@@ -64,25 +64,21 @@ GLFWwindow* initWindow()
 	return window;
 }
 
-float calculation(float x, float y)
+float calculation1(float x, float y)
 {
     return std::exp(-(x*x + y*y));
+}
+
+float calculation2(float x, float y)
+{
+	return sinf(1.0f / (x*x + y * y));
 }
 
 int main(int argc, char **argv)
 {
 	GLFWwindow* window = initWindow();
 
-	std::string textureNames[NUM_BOX_SIDES] = {
-		"texture\\cat.jpg",
-		"texture\\nyan.jpg",
-		"texture\\woman.jpg",
-		"texture\\sax.jpg",
-		"texture\\gandalf.jpg",
-		"texture\\table.jpg",
-	};
-
-    UniformGrid grid(calculation, 1000, 1000, -10.0f, -10.0f, 10.0f, 10.0f);
+    UniformGrid grid(calculation2, 1000, 1000, -10.0f, -10.0f, 10.0f, 10.0f);
     grid.init();
 	MovableKeyListener(window, grid);
 
