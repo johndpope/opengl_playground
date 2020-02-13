@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include <vector>
 #include <glm.hpp>
 #include <material.h>
 #include <surface.h>
@@ -23,7 +24,7 @@ public:
 	virtual ScalarAttributes& pointScalars() = 0;
 	int numVertices() { return 6 * this->numCells(); }
 
-    float* triangulate(glm::vec3* color = nullptr)
+    void triangulate(std::vector<float>& data, glm::vec3* color = nullptr)
     {
         glm::vec3 defaultColor = glm::vec3(1.0f);
         if (color == nullptr)
@@ -32,7 +33,7 @@ public:
         }
 
         const int size = 11 * this->numVertices();
-        float* data = new float[size];
+        data.resize(size);
 
         int sequence[6] = { 3, 2, 1, 3, 1, 0 };
         int numCells = this->numCells();
@@ -81,8 +82,6 @@ public:
                 data[o + 10] = color->z;
             }
         }
-
-		return data;
     }
 
 protected:
@@ -122,13 +121,12 @@ private:
 			}
         }
 
-		float* vertices = this->triangulate(&glm::vec3(1.0f, 0, 0));
+        std::vector<float> vertices;
+		this->triangulate(vertices, &glm::vec3(1.0f, 0, 0));
 
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 11 * this->numVertices(), vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
 
         this->initGrid(vao, vbo);
-
-        delete vertices;
     }
 
 	void updateSurface(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light)
