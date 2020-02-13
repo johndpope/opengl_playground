@@ -60,6 +60,9 @@
     <ClInclude Include="include\uniform_grid.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\surface.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\colorFragmentShader.glsl">

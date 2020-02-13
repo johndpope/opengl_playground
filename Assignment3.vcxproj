@@ -34,6 +34,7 @@
     <ClInclude Include="include\shape.h" />
     <ClInclude Include="include\stb_image.h" />
     <ClInclude Include="include\stb_image_write.h" />
+    <ClInclude Include="include\surface.h" />
     <ClInclude Include="include\uniform_grid.h" />
   </ItemGroup>
   <ItemGroup>

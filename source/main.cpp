@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 
     UniformGrid grid(calculation2, 1000, 1000, -10.0f, -10.0f, 10.0f, 10.0f);
     grid.init();
-	MovableKeyListener(window, grid);
+	SurfaceKeyListener<UniformGrid>(window, grid);
 
 	LightBox light;
 	light.init();

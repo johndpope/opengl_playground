@@ -11,7 +11,7 @@
 
 class KeyListener
 {
-protected:
+public:
 	typedef std::function<void()> KeyCallbackFunc;
 
 	static void registerCallback(GLFWwindow* window, int key, int action, KeyCallbackFunc func);
@@ -50,7 +50,7 @@ private:
 	float m_scale;
 };
 
-class MovableKeyListener : KeyListener
+class MovableKeyListener : public KeyListener
 {
 public:
 	MovableKeyListener(GLFWwindow* window, MovableObject& movable, float rotate = 1.0f, float scale = 1.01f)
@@ -108,11 +108,12 @@ private:
 };
 
 template <class S>
-class ShapeKeyListener : MovableKeyListener
+class ShapeKeyListener : public MovableKeyListener
 {
 public:
-	ShapeKeyListener(GLFWwindow* window, S& shape, float rotate = 45.0f, float scale = 2.0f)
-		: m_shape(shape)
+	ShapeKeyListener(GLFWwindow* window, S& shape, float rotate = 1.0f, float scale = 1.01f)
+		: MovableKeyListener(window, shape, rotate, scale),
+		  m_shape(shape)
 	{
 		registerCallback(window, GLFW_KEY_F, GLFW_PRESS, KeyCallbackFunc(std::bind(&ShapeKeyListener::wireframe, this)));
 	}
@@ -127,5 +128,29 @@ private:
 	}
 
 	S& m_shape;
+	bool m_wireframe;
+};
+
+template <class S>
+class SurfaceKeyListener : public MovableKeyListener
+{
+public:
+	SurfaceKeyListener(GLFWwindow* window, S& surface, float rotate = 1.0f, float scale = 1.01f)
+		: MovableKeyListener(window, surface, rotate, scale),
+		  m_surface(surface)
+	{
+		registerCallback(window, GLFW_KEY_F, GLFW_PRESS, KeyCallbackFunc(std::bind(&SurfaceKeyListener::wireframe, this)));
+	}
+
+	~SurfaceKeyListener() = default;
+
+private:
+	void wireframe()
+	{
+		m_wireframe = !m_wireframe;
+		m_surface.wireframe(m_wireframe);
+	}
+
+	S& m_surface;
 	bool m_wireframe;
 };

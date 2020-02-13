@@ -26,6 +26,11 @@ public:
 		delete m_shader;
 	}
 
+	void wireframe(bool enable)
+	{
+		m_wireframe = enable ? GL_LINE : GL_FILL;
+	}
+
 	void update(const Camera& camera, const Light& light)
 	{
 		m_camera = &camera;
@@ -38,18 +43,23 @@ protected:
 	virtual void updateSurface(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light) = 0;
 
 	Shader* m_shader;
+	GLenum m_wireframe;
 
 private:
 	using UpdatableObject::update;
 
 	void initMovable(const GLuint& vao, const GLuint& vbo)
 	{
+		m_wireframe = GL_FILL;
+
 		m_shader->use();
 		this->initSurface(vao, vbo);
 	}
 
 	void updateMovable(const float& totalTime, const float& frameTime)
 	{
+		glPolygonMode(GL_FRONT_AND_BACK, m_wireframe);
+
 		m_shader->use();
 		this->updateSurface(totalTime, frameTime, *m_camera, *m_light);
 	}
