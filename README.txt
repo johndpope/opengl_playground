@@ -11,5 +11,14 @@ Z : Rotate shape about Z axis
 - : Scale down shape
 J : Rotate camera to the left
 L : Rotate camera to the right
+U : Increase the iso value
+I : Decrease the iso value
 
-Link to video: https://photos.app.goo.gl/RZ83cwxGExLdtGacA
+PLEASE RUN IN DEBUG MODE...there is a known bug in running
+in release where variables in the key listener fail to
+initialize...probably something to do with the static base
+class
+
+For convenience I have attached a debug exe
+
+Link to video: https://photos.app.goo.gl/6NN9fxk97ff1Pz7u5

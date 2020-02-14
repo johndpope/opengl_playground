@@ -89,7 +89,7 @@ int main(int argc, char **argv)
 
 	LightBox light;
 	light.init();
-	light.orbit(glm::vec3(0, 0, 1.0f), glm::vec3(0, 0, 0.0f), 3.0f, 3.0f);
+	light.orbit(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0.0f), 2.0f, 2.0f, 0.0f);
 
 	PerspectiveCamera camera(SCR_WIDTH, SCR_HEIGHT, 45.0f, 0.1f, 50.0f);
 	camera.init();

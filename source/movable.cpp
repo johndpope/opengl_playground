@@ -136,7 +136,7 @@ void MovableObject::transformTo(const glm::mat4& targetTransform, const float& d
 	m_moveDatas.push(data);
 }
 
-void MovableObject::orbit(const glm::vec3& targetAxis, const glm::vec3& center, const float& radius, const float& speed, const float& duration)
+void MovableObject::orbit(const glm::vec3& targetAxis, const glm::vec3& center, const float& radius, const float& circleSpeed, const float& sphereSpeed, const float& duration)
 {
 	OrbitMovementData* data = new OrbitMovementData();
 
@@ -144,7 +144,8 @@ void MovableObject::orbit(const glm::vec3& targetAxis, const glm::vec3& center, 
 	data->duration = duration < 0.0 ? (float)((unsigned int)-1) : duration;
 	data->center = center;
 	data->radius = radius;
-	data->speed = speed;
+	data->circleSpeed = circleSpeed;
+	data->sphereSpeed = sphereSpeed;
 	data->targetAxis = targetAxis;
 
 	m_moveDatas.push(data);
@@ -220,14 +221,14 @@ glm::mat4 MovableObject::computeOrbitMovement(void* movementData)
 
 	glm::vec3 b = glm::normalize(glm::cross(a, n));
 
-	float theta = data->speed * data->elapsedTime;
+	float theta = data->circleSpeed * data->elapsedTime;
 	float x = data->radius * (glm::cos(theta) * a.x + glm::sin(theta) * b.x);
 	float y = data->radius * (glm::cos(theta) * a.y + glm::sin(theta) * b.y);
 	float z = data->radius * (glm::cos(theta) * a.z + glm::sin(theta) * b.z);
 
 	glm::vec3 position = glm::vec3(x, y, z) + data->center;
 
-	data->targetAxis = glm::rotate(glm::mat4(), (float)glm::radians(data->speed * 0.01f), a) * glm::vec4(n, 1.0f);
+	data->targetAxis = glm::rotate(glm::mat4(), (float)glm::radians(data->sphereSpeed), a) * glm::vec4(n, 1.0f);
 
 	return glm::translate(glm::mat4(), position);
 }

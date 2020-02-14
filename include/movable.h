@@ -46,7 +46,7 @@ public:
 	void rotateTo(const glm::vec3& targetAxis, const float& targetAngleInDeg, const float& duration = -1.0f);
 	void translateTo(const glm::vec3& targetTranslation, const float& duration = -1.0f);
 	void transformTo(const glm::mat4& targetTransform, const float& duration = -1.0f);
-	void orbit(const glm::vec3& targetAxis, const glm::vec3& center, const float& radius, const float& speed, const float& duration = -1.0f);
+	void orbit(const glm::vec3& targetAxis, const glm::vec3& center, const float& radius, const float& circleSpeed, const float& sphereSpeed, const float& duration = -1.0f);
 
 protected:
 	void updateUpdatable(const float& totalTime, const float& frameTime);
@@ -80,7 +80,8 @@ private:
 		glm::vec3 targetAxis;
 		glm::vec3 center;
 		float radius;
-		float speed;
+		float circleSpeed;
+		float sphereSpeed;
 	};
 
 	glm::mat4 computeOneShotMovement(void* movementData);
