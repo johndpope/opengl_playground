@@ -23,6 +23,7 @@ public:
 	virtual int findCell(float*) = 0;
 	virtual ScalarAttributes& pointScalars() = 0;
 	int numVertices() { return 6 * this->numCells(); }
+    float function(float x, float y) { return m_function(x, y); }
 
     void triangulate(std::vector<float>& data, glm::vec3* color = nullptr)
     {

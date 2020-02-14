@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="include\box.h" />
     <ClInclude Include="include\camera.h" />
+    <ClInclude Include="include\contour.h" />
     <ClInclude Include="include\grid.h" />
     <ClInclude Include="include\key_listener.h" />
     <ClInclude Include="include\light.h" />

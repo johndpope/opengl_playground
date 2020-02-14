@@ -154,3 +154,37 @@ private:
 	S& m_surface;
 	bool m_wireframe;
 };
+
+template <class C>
+class ContourKeyListener : public MovableKeyListener
+{
+public:
+	ContourKeyListener(GLFWwindow* window, C& contour, float rotate = 1.0f, float scale = 1.01f, float iso = 0.05f)
+		: MovableKeyListener(window, contour, rotate, scale),
+		  m_iso(iso),
+		  m_contour(contour)
+	{
+		registerCallback(window, GLFW_KEY_U, GLFW_PRESS, KeyCallbackFunc(std::bind(&ContourKeyListener::isoUp, this)));
+		registerCallback(window, GLFW_KEY_U, GLFW_REPEAT, KeyCallbackFunc(std::bind(&ContourKeyListener::isoUp, this)));
+		registerCallback(window, GLFW_KEY_I, GLFW_PRESS, KeyCallbackFunc(std::bind(&ContourKeyListener::isoDown, this)));
+		registerCallback(window, GLFW_KEY_I, GLFW_REPEAT, KeyCallbackFunc(std::bind(&ContourKeyListener::isoDown, this)));
+	}
+
+	~ContourKeyListener() = default;
+
+private:
+	void isoUp()
+	{
+		float isoValue = m_contour.getIsoValue() + m_iso;
+		m_contour.setIsoValue(isoValue);
+	}
+
+	void isoDown()
+	{
+		float isoValue = m_contour.getIsoValue() - m_iso;
+		m_contour.setIsoValue(isoValue);
+	}
+
+	C& m_contour;
+	float m_iso;
+};

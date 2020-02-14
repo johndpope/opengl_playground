@@ -3,6 +3,7 @@
 #include <glm.hpp>
 #include <box.h>
 #include <camera.h>
+#include <contour.h>
 #include <light_shape.h>
 #include <key_listener.h>
 #include <uniform_grid.h>
@@ -78,9 +79,13 @@ int main(int argc, char **argv)
 {
 	GLFWwindow* window = initWindow();
 
-    UniformGrid grid(calculation2, 1000, 1000, -10.0f, -10.0f, 10.0f, 10.0f);
+    UniformGrid grid(calculation1, 300, 300, -3.0f, -3.0f, 3.0f, 3.0f);
     grid.init();
 	SurfaceKeyListener<UniformGrid>(window, grid);
+
+	Contour<ColorShader> contour(grid);
+	contour.init();
+	ContourKeyListener<Contour<ColorShader>>(window, contour);
 
 	LightBox light;
 	light.init();
@@ -100,6 +105,7 @@ int main(int argc, char **argv)
 
 		camera.update();
 		grid.update(camera, light);
+		contour.update(camera, light);
 		light.update(camera);
 
 		glFlush();
