@@ -6,6 +6,8 @@
 #include <vector>
 #include <camera.h>
 #include <shape.h>
+#include <surface.h>
+#include <contour.h>
 #include <functional>
 #include <movable.h>
 
@@ -28,7 +30,7 @@ private:
 	static std::map<GLFWwindow*, std::map<int, std::vector<KeyCallbackFuncArgs>>> m_windowKeyMap;
 };
 
-class CameraKeyListener : private KeyListener
+class CameraKeyListener
 {
 public:
 	CameraKeyListener(GLFWwindow* window, Camera& camera, float rotateSpeed = 1.0f, float translateSpeed = 0.2f, float scale = 0.1f);
@@ -50,141 +52,60 @@ private:
 	float m_scale;
 };
 
-class MovableKeyListener : public KeyListener
+class MovableKeyListener
 {
 public:
-	MovableKeyListener(GLFWwindow* window, MovableObject& movable, float rotate = 1.0f, float scale = 1.01f)
-		: m_movable(movable),
-		  m_rotate(rotate),
-		  m_scale(scale)
-	{
-		registerCallback(window, GLFW_KEY_EQUAL, GLFW_PRESS, KeyCallbackFunc(std::bind(&MovableKeyListener::bigger, this)));
-		registerCallback(window, GLFW_KEY_EQUAL, GLFW_REPEAT, KeyCallbackFunc(std::bind(&MovableKeyListener::bigger, this)));
-		registerCallback(window, GLFW_KEY_MINUS, GLFW_PRESS, KeyCallbackFunc(std::bind(&MovableKeyListener::smaller, this)));
-		registerCallback(window, GLFW_KEY_MINUS, GLFW_REPEAT, KeyCallbackFunc(std::bind(&MovableKeyListener::smaller, this)));
-		registerCallback(window, GLFW_KEY_X, GLFW_PRESS, KeyCallbackFunc(std::bind(&MovableKeyListener::rotateX, this)));
-		registerCallback(window, GLFW_KEY_X, GLFW_REPEAT, KeyCallbackFunc(std::bind(&MovableKeyListener::rotateX, this)));
-		registerCallback(window, GLFW_KEY_Y, GLFW_PRESS, KeyCallbackFunc(std::bind(&MovableKeyListener::rotateY, this)));
-		registerCallback(window, GLFW_KEY_Y, GLFW_REPEAT, KeyCallbackFunc(std::bind(&MovableKeyListener::rotateY, this)));
-		registerCallback(window, GLFW_KEY_Z, GLFW_PRESS, KeyCallbackFunc(std::bind(&MovableKeyListener::rotateZ, this)));
-		registerCallback(window, GLFW_KEY_Z, GLFW_REPEAT, KeyCallbackFunc(std::bind(&MovableKeyListener::rotateZ, this)));
-
-		m_rotate = rotate;
-	}
-
+	MovableKeyListener(GLFWwindow* window, MovableObject& movable, float rotate = 1.0f, float scale = 1.01f);
 	~MovableKeyListener() = default;
 
 private:
-	void bigger()
-	{
-		m_movable.scale(glm::vec3(m_scale));
-		fprintf(stdout, "<key_callback> + pressed\n");
-	}
-
-	void smaller()
-	{
-		m_movable.scale(glm::vec3(1.0f / m_scale));
-		fprintf(stdout, "<key_callback> - pressed\n");
-	}
-
-	void rotateX()
-	{
-		m_movable.rotate(glm::vec3(1.0f, 0, 0), m_rotate);
-	}
-
-	void rotateY()
-	{
-		m_movable.rotate(glm::vec3(0, 1.0f, 0), m_rotate);
-	}
-
-	void rotateZ()
-	{
-		m_movable.rotate(glm::vec3(0, 0, 1.0f), m_rotate);
-	}
+	void bigger();
+	void smaller();
+	void rotateX();
+	void rotateY();
+	void rotateZ();
 
 	MovableObject& m_movable;
 	float m_rotate;
 	float m_scale;
 };
 
-template <class S>
 class ShapeKeyListener : public MovableKeyListener
 {
 public:
-	ShapeKeyListener(GLFWwindow* window, S& shape, float rotate = 1.0f, float scale = 1.01f)
-		: MovableKeyListener(window, shape, rotate, scale),
-		  m_shape(shape)
-	{
-		registerCallback(window, GLFW_KEY_F, GLFW_PRESS, KeyCallbackFunc(std::bind(&ShapeKeyListener::wireframe, this)));
-	}
-
+	ShapeKeyListener(GLFWwindow* window, Shape& shape, float rotate = 1.0f, float scale = 1.01f);
 	~ShapeKeyListener() = default;
 
 private:
-	void wireframe()
-	{
-		m_wireframe = !m_wireframe;
-		m_shape.wireframe(m_wireframe);
-	}
+	void wireframe();
 
-	S& m_shape;
+	Shape& m_shape;
 	bool m_wireframe;
 };
 
-template <class S>
 class SurfaceKeyListener : public MovableKeyListener
 {
 public:
-	SurfaceKeyListener(GLFWwindow* window, S& surface, float rotate = 1.0f, float scale = 1.01f)
-		: MovableKeyListener(window, surface, rotate, scale),
-		  m_surface(surface)
-	{
-		registerCallback(window, GLFW_KEY_F, GLFW_PRESS, KeyCallbackFunc(std::bind(&SurfaceKeyListener::wireframe, this)));
-	}
-
+	SurfaceKeyListener(GLFWwindow* window, Surface& surface, float rotate = 1.0f, float scale = 1.01f);
 	~SurfaceKeyListener() = default;
 
 private:
-	void wireframe()
-	{
-		m_wireframe = !m_wireframe;
-		m_surface.wireframe(m_wireframe);
-	}
+	void wireframe();
 
-	S& m_surface;
+	Surface& m_surface;
 	bool m_wireframe;
 };
 
-template <class C>
 class ContourKeyListener : public MovableKeyListener
 {
 public:
-	ContourKeyListener(GLFWwindow* window, C& contour, float rotate = 1.0f, float scale = 1.01f, float iso = 0.05f)
-		: MovableKeyListener(window, contour, rotate, scale),
-		  m_iso(iso),
-		  m_contour(contour)
-	{
-		registerCallback(window, GLFW_KEY_U, GLFW_PRESS, KeyCallbackFunc(std::bind(&ContourKeyListener::isoUp, this)));
-		registerCallback(window, GLFW_KEY_U, GLFW_REPEAT, KeyCallbackFunc(std::bind(&ContourKeyListener::isoUp, this)));
-		registerCallback(window, GLFW_KEY_I, GLFW_PRESS, KeyCallbackFunc(std::bind(&ContourKeyListener::isoDown, this)));
-		registerCallback(window, GLFW_KEY_I, GLFW_REPEAT, KeyCallbackFunc(std::bind(&ContourKeyListener::isoDown, this)));
-	}
-
+	ContourKeyListener(GLFWwindow* window, Contour& contour, float rotate = 1.0f, float scale = 1.01f, float iso = 0.05f);
 	~ContourKeyListener() = default;
 
 private:
-	void isoUp()
-	{
-		float isoValue = m_contour.getIsoValue() + m_iso;
-		m_contour.setIsoValue(isoValue);
-	}
+	void isoUp();
+	void isoDown();
 
-	void isoDown()
-	{
-		float isoValue = m_contour.getIsoValue() - m_iso;
-		m_contour.setIsoValue(isoValue);
-	}
-
-	C& m_contour;
+	Contour& m_contour;
 	float m_iso;
 };

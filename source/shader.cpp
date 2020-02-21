@@ -75,37 +75,37 @@ void ShaderBase::setBufferParameter(std::string name, int numAttribs, int stride
 	}
 }
 
-void LightingShader::setLightPosition(const glm::vec3& lightPosition)
+void ShaderBase::setLightPosition(const glm::vec3& lightPosition)
 {
 	glUniform3fv(glGetUniformLocation(m_pid, "vLightPosition"), 1, &lightPosition[0]);
 }
 
-void LightingShader::setBufferNormal(int stride, int offset)
+void ShaderBase::setBufferNormal(int stride, int offset)
 {
 	this->setBufferParameter("vNormal", 3, stride, offset);
 }
 
-void MaterialShader::setShininess(const float shininess)
+void ShaderBase::setShininess(const float shininess)
 {
 	glUniform1f(glGetUniformLocation(m_pid, "fShininess"), shininess);
 }
 
-void MaterialShader::setAmbientColor(const glm::vec3& ambientColor)
+void ShaderBase::setAmbientColor(const glm::vec3& ambientColor)
 {
 	glUniform3fv(glGetUniformLocation(m_pid, "vAmbientColor"), 1, &ambientColor[0]);
 }
 
-void MaterialShader::setDiffuseColor(const glm::vec3& diffuseColor)
+void ShaderBase::setDiffuseColor(const glm::vec3& diffuseColor)
 {
 	glUniform3fv(glGetUniformLocation(m_pid, "vDiffuseColor"), 1, &diffuseColor[0]);
 }
 
-void MaterialShader::setSpecularColor(const glm::vec3& specularColor)
+void ShaderBase::setSpecularColor(const glm::vec3& specularColor)
 {
 	glUniform3fv(glGetUniformLocation(m_pid, "vSpecularColor"), 1, &specularColor[0]);
 }
 
-void MaterialShader::setMaterial(const Material& material)
+void ShaderBase::setMaterial(const Material& material)
 {
 	this->setShininess(material.shininess);
 	this->setAmbientColor(material.ambientColor);
@@ -113,17 +113,12 @@ void MaterialShader::setMaterial(const Material& material)
 	this->setSpecularColor(material.specularColor);
 }
 
-void BasicColorShader::setBufferColor(int stride, int offset)
+void ShaderBase::setBufferColor(int stride, int offset)
 {
 	this->setBufferParameter("vColor", 3, stride, offset);
 }
 
-void ColorShader::setBufferColor(int stride, int offset)
-{
-	this->setBufferParameter("vColor", 3, stride, offset);
-}
-
-void TextureShader::setBufferTextureCoord(int stride, int offset)
+void ShaderBase::setBufferTextureCoord(int stride, int offset)
 {
 	this->setBufferParameter("vTexCoord", 2, stride, offset);
 }

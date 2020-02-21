@@ -6,6 +6,96 @@
 #include <stb_image.h>
 #endif
 
+void Box::generateCustomBox(float vertices[396], glm::vec3& size)
+{
+    this->generateBox(vertices, size);
+}
+
+void Box::generateBox(float vertices[396], glm::vec3& size, glm::vec3* color)
+{
+    glm::vec3 defaultColor = glm::vec3(1.0f);
+    if (color == nullptr)
+    {
+        color = &defaultColor;
+    }
+
+    float minX = -size.x / 2;
+    float maxX = size.x / 2;
+    float minY = -size.y / 2;
+    float maxY = size.y / 2;
+    float minZ = -size.z / 2;
+    float maxZ = size.z / 2;
+
+    glm::vec3 v0 = glm::vec3(minX, minY, maxZ);
+    glm::vec3 v1 = glm::vec3(maxX, minY, maxZ);
+    glm::vec3 v2 = glm::vec3(maxX, maxY, maxZ);
+    glm::vec3 v3 = glm::vec3(minX, maxY, maxZ);
+    glm::vec3 v4 = glm::vec3(maxX, minY, minZ);
+    glm::vec3 v5 = glm::vec3(minX, minY, minZ);
+    glm::vec3 v6 = glm::vec3(minX, maxY, minZ);
+    glm::vec3 v7 = glm::vec3(maxX, maxY, minZ);
+
+    glm::vec3 posZ[4] = { v0, v1, v2, v3 };
+    glm::vec3 posY[4] = { v3, v2, v7, v6 };
+    glm::vec3 posX[4] = { v1, v4, v7, v2 };
+    glm::vec3 negZ[4] = { v4, v5, v6, v7 };
+    glm::vec3 negY[4] = { v0, v5, v4, v1 };
+    glm::vec3 negX[4] = { v5, v0, v3, v6 };
+
+    glm::vec3* faces[6] = { posX, posY, posZ, negX, negY, negZ };
+    int sequence[6] = { 0, 1, 2, 0, 2, 3 };
+
+    // Iterate over faces
+    for (int i = 0; i < 6; i++)
+    {
+        // Calculate face normal
+        glm::vec3 a = faces[i][2] - faces[i][0];
+        glm::vec3 b = faces[i][1] - faces[i][0];
+        glm::vec3 n = glm::normalize(glm::cross(b, a));
+
+        // Iterate over vertices
+        for (int k = 0; k < 6; k++)
+        {
+            int m = sequence[k];
+            int o = (i * 6 + k) * 11;
+
+            // Vertex coordinate
+            vertices[o + 0] = faces[i][m].x;
+            vertices[o + 1] = faces[i][m].y;
+            vertices[o + 2] = faces[i][m].z;
+
+            // Vertex texture coordinate
+            vertices[o + 3] = ((m == 0) || (m == 3)) ? 0.0f : 1.0f;
+            vertices[o + 4] = ((m == 0) || (m == 1)) ? 0.0f : 1.0f;
+
+            // Vertex normal
+            vertices[o + 5] = n.x;
+            vertices[o + 6] = n.y;
+            vertices[o + 7] = n.z;
+
+            // Vertex color
+            vertices[o + 8] = color->x;
+            vertices[o + 9] = color->y;
+            vertices[o + 10] = color->z;
+        }
+    }
+}
+
+void Box::initShape(const GLuint& vao, const GLuint& vbo)
+{
+    float vertices[396];
+    this->generateCustomBox(vertices, m_size);
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    this->initBox(vao, vbo);
+}
+
+void Box::updateShape(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light)
+{
+    this->updateBox(totalTime, frameTime, camera, light);
+}
+
 BasicColorBox::BasicColorBox(const glm::vec3 color, const glm::vec3& size)
 	: Box(new BasicColorShader(), size),
 	  m_color(color) { }

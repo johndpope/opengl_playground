@@ -81,11 +81,11 @@ int main(int argc, char **argv)
 
     UniformGrid grid(calculation1, 300, 300, -3.0f, -3.0f, 3.0f, 3.0f);
     grid.init();
-	SurfaceKeyListener<UniformGrid>(window, grid);
+	SurfaceKeyListener surfaceKeyListener = SurfaceKeyListener(window, grid);
 
-	Contour<ColorShader> contour(grid);
+	ColorContour contour(grid);
 	contour.init();
-	ContourKeyListener<Contour<ColorShader>>(window, contour);
+	ContourKeyListener contourKeyListener = ContourKeyListener(window, contour);
 
 	LightBox light;
 	light.init();
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
 	camera.init();
 	camera.translate(glm::vec3(0, 0, 10.0f));
 	camera.lookAt(glm::vec3(0, 0, 0));
-	CameraKeyListener(window, camera);
+	CameraKeyListener cameraKeyListener = CameraKeyListener(window, camera);
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))

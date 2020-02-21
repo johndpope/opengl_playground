@@ -49,6 +49,8 @@
   <ItemGroup>
     <ClCompile Include="source\box.cpp" />
     <ClCompile Include="source\camera.cpp" />
+    <ClCompile Include="source\contour.cpp" />
+    <ClCompile Include="source\grid.cpp" />
     <ClCompile Include="source\key_listener.cpp" />
     <ClCompile Include="source\light.cpp" />
     <ClCompile Include="source\light_shape.cpp" />
@@ -57,6 +59,7 @@
     <ClCompile Include="source\rectilinear_grid.cpp" />
     <ClCompile Include="source\scalar_attributes.cpp" />
     <ClCompile Include="source\shader.cpp" />
+    <ClCompile Include="source\surface.cpp" />
     <ClCompile Include="source\uniform_grid.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

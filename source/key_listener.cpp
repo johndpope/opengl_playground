@@ -44,24 +44,24 @@ CameraKeyListener::CameraKeyListener(GLFWwindow* window, Camera& camera, float r
 	  m_rotateSpeed(rotateSpeed),
 	  m_translateSpeed(translateSpeed)
 {
-	registerCallback(window, GLFW_KEY_A, GLFW_PRESS, KeyCallbackFunc(std::bind(&CameraKeyListener::walkLeft, this)));
-	registerCallback(window, GLFW_KEY_A, GLFW_REPEAT, KeyCallbackFunc(std::bind(&CameraKeyListener::walkLeft, this)));
-	registerCallback(window, GLFW_KEY_A, GLFW_RELEASE, KeyCallbackFunc(std::bind(&CameraKeyListener::walkLeft, this)));
-	registerCallback(window, GLFW_KEY_W, GLFW_PRESS, KeyCallbackFunc(std::bind(&CameraKeyListener::walkForward, this)));
-	registerCallback(window, GLFW_KEY_W, GLFW_REPEAT, KeyCallbackFunc(std::bind(&CameraKeyListener::walkForward, this)));
-	registerCallback(window, GLFW_KEY_W, GLFW_RELEASE, KeyCallbackFunc(std::bind(&CameraKeyListener::walkForward, this)));
-	registerCallback(window, GLFW_KEY_S, GLFW_PRESS, KeyCallbackFunc(std::bind(&CameraKeyListener::walkBackward, this)));
-	registerCallback(window, GLFW_KEY_S, GLFW_REPEAT, KeyCallbackFunc(std::bind(&CameraKeyListener::walkBackward, this)));
-	registerCallback(window, GLFW_KEY_S, GLFW_RELEASE, KeyCallbackFunc(std::bind(&CameraKeyListener::walkBackward, this)));
-	registerCallback(window, GLFW_KEY_D, GLFW_PRESS, KeyCallbackFunc(std::bind(&CameraKeyListener::walkRight, this)));
-	registerCallback(window, GLFW_KEY_D, GLFW_REPEAT, KeyCallbackFunc(std::bind(&CameraKeyListener::walkRight, this)));
-	registerCallback(window, GLFW_KEY_D, GLFW_RELEASE, KeyCallbackFunc(std::bind(&CameraKeyListener::walkRight, this)));
-	registerCallback(window, GLFW_KEY_J, GLFW_PRESS, KeyCallbackFunc(std::bind(&CameraKeyListener::rotateLeft, this)));
-	registerCallback(window, GLFW_KEY_J, GLFW_REPEAT, KeyCallbackFunc(std::bind(&CameraKeyListener::rotateLeft, this)));
-	registerCallback(window, GLFW_KEY_J, GLFW_RELEASE, KeyCallbackFunc(std::bind(&CameraKeyListener::rotateLeft, this)));
-	registerCallback(window, GLFW_KEY_L, GLFW_PRESS, KeyCallbackFunc(std::bind(&CameraKeyListener::rotateRight, this)));
-	registerCallback(window, GLFW_KEY_L, GLFW_REPEAT, KeyCallbackFunc(std::bind(&CameraKeyListener::rotateRight, this)));
-	registerCallback(window, GLFW_KEY_L, GLFW_RELEASE, KeyCallbackFunc(std::bind(&CameraKeyListener::rotateRight, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_A, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&CameraKeyListener::walkLeft, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_A, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&CameraKeyListener::walkLeft, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_A, GLFW_RELEASE, KeyListener::KeyCallbackFunc(std::bind(&CameraKeyListener::walkLeft, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_W, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&CameraKeyListener::walkForward, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_W, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&CameraKeyListener::walkForward, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_W, GLFW_RELEASE, KeyListener::KeyCallbackFunc(std::bind(&CameraKeyListener::walkForward, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_S, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&CameraKeyListener::walkBackward, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_S, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&CameraKeyListener::walkBackward, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_S, GLFW_RELEASE, KeyListener::KeyCallbackFunc(std::bind(&CameraKeyListener::walkBackward, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_D, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&CameraKeyListener::walkRight, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_D, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&CameraKeyListener::walkRight, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_D, GLFW_RELEASE, KeyListener::KeyCallbackFunc(std::bind(&CameraKeyListener::walkRight, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_J, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&CameraKeyListener::rotateLeft, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_J, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&CameraKeyListener::rotateLeft, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_J, GLFW_RELEASE, KeyListener::KeyCallbackFunc(std::bind(&CameraKeyListener::rotateLeft, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_L, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&CameraKeyListener::rotateRight, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_L, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&CameraKeyListener::rotateRight, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_L, GLFW_RELEASE, KeyListener::KeyCallbackFunc(std::bind(&CameraKeyListener::rotateRight, this)));
 }
 
 void CameraKeyListener::rotateLeft()
@@ -107,4 +107,99 @@ void CameraKeyListener::translate(glm::vec3 moveDirection, float speed)
 	glm::vec3 translation = glm::normalize(glm::vec3(m_camera.rotation() * glm::vec4(moveDirection, 1.0f)));
 	translation *= speed;
 	m_camera.translate(translation);
+}
+
+MovableKeyListener::MovableKeyListener(GLFWwindow* window, MovableObject& movable, float rotate, float scale)
+    : m_movable(movable),
+        m_rotate(rotate),
+        m_scale(scale)
+{
+    KeyListener::registerCallback(window, GLFW_KEY_EQUAL, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&MovableKeyListener::bigger, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_EQUAL, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&MovableKeyListener::bigger, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_MINUS, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&MovableKeyListener::smaller, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_MINUS, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&MovableKeyListener::smaller, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_X, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&MovableKeyListener::rotateX, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_X, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&MovableKeyListener::rotateX, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_Y, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&MovableKeyListener::rotateY, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_Y, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&MovableKeyListener::rotateY, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_Z, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&MovableKeyListener::rotateZ, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_Z, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&MovableKeyListener::rotateZ, this)));
+
+    m_rotate = rotate;
+}
+
+void MovableKeyListener::bigger()
+{
+    m_movable.scale(glm::vec3(m_scale));
+    fprintf(stdout, "<key_callback> + pressed\n");
+}
+
+void MovableKeyListener::smaller()
+{
+    m_movable.scale(glm::vec3(1.0f / m_scale));
+    fprintf(stdout, "<key_callback> - pressed\n");
+}
+
+void MovableKeyListener::rotateX()
+{
+    m_movable.rotate(glm::vec3(1.0f, 0, 0), m_rotate);
+}
+
+void MovableKeyListener::rotateY()
+{
+    m_movable.rotate(glm::vec3(0, 1.0f, 0), m_rotate);
+}
+
+void MovableKeyListener::rotateZ()
+{
+    m_movable.rotate(glm::vec3(0, 0, 1.0f), m_rotate);
+}
+
+ShapeKeyListener::ShapeKeyListener(GLFWwindow* window, Shape& shape, float rotate, float scale)
+    : MovableKeyListener(window, shape, rotate, scale),
+        m_shape(shape)
+{
+    KeyListener::registerCallback(window, GLFW_KEY_F, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&ShapeKeyListener::wireframe, this)));
+}
+
+void ShapeKeyListener::wireframe()
+{
+    m_wireframe = !m_wireframe;
+    m_shape.wireframe(m_wireframe);
+}
+
+SurfaceKeyListener::SurfaceKeyListener(GLFWwindow* window, Surface& surface, float rotate, float scale)
+    : MovableKeyListener(window, surface, rotate, scale),
+        m_surface(surface)
+{
+    KeyListener::registerCallback(window, GLFW_KEY_F, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&SurfaceKeyListener::wireframe, this)));
+}
+
+void SurfaceKeyListener::wireframe()
+{
+    m_wireframe = !m_wireframe;
+    m_surface.wireframe(m_wireframe);
+}
+
+ContourKeyListener::ContourKeyListener(GLFWwindow* window, Contour& contour, float rotate, float scale, float iso)
+    : MovableKeyListener(window, contour, rotate, scale),
+        m_iso(iso),
+        m_contour(contour)
+{
+    KeyListener::registerCallback(window, GLFW_KEY_U, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&ContourKeyListener::isoUp, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_U, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&ContourKeyListener::isoUp, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_I, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&ContourKeyListener::isoDown, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_I, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&ContourKeyListener::isoDown, this)));
+}
+
+void ContourKeyListener::isoUp()
+{
+    float isoValue = m_contour.getIsoValue() + m_iso;
+    m_contour.setIsoValue(isoValue);
+}
+
+void ContourKeyListener::isoDown()
+{
+    float isoValue = m_contour.getIsoValue() - m_iso;
+    m_contour.setIsoValue(isoValue);
 }

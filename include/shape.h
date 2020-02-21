@@ -6,13 +6,10 @@
 #include <light.h>
 #include <camera.h>
 
-template <class Shader>
 class Shape : public MovableObject
 {
-static_assert(std::is_base_of<ShaderBase, Shader>::value, "Shader must derive from ShaderBase");
-
 public:
-	Shape(Shader* shader) :
+	Shape(ShaderBase* shader) :
 		m_shader(shader)
 	{
 		if (shader == nullptr)
@@ -42,7 +39,7 @@ protected:
 	virtual void initShape(const GLuint& vao, const GLuint& vbo) = 0;
 	virtual void updateShape(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light) = 0;
 
-	Shader* m_shader;
+	ShaderBase* m_shader;
 	GLenum m_wireframe;
 
 private:

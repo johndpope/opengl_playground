@@ -4,7 +4,7 @@
 #include <scalar_attributes.h>
 #include <shader.h>
 
-class UniformGrid : public Grid<ColorShader>
+class UniformGrid : public Grid
 {
 public:
     UniformGrid(Calculate2DFunction function, int numPointsX, int numPointsY, float minX, float minY, float maxX, float maxY);

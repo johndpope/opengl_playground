@@ -121,5 +121,14 @@
     <ClCompile Include="source\uniform_grid.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="source\contour.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\grid.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\surface.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
