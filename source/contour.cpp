@@ -8,38 +8,38 @@ Contour::Contour(Grid& grid, ShaderBase* contourShader)
         m_prevIsoValue(-1.0f)
 {
     m_sequenceMap[0] = { };
-    m_sequenceMap[1] = { 6, 7, 3 };
-    m_sequenceMap[2] = { 7, 8, 5 };
-    m_sequenceMap[3] = { 6, 8, 5, 6, 5, 3 };
-    m_sequenceMap[4] = { 1, 5, 2 };
-    m_sequenceMap[5] = { 1, 5, 2, 6, 7, 3 };
-    m_sequenceMap[6] = { 7, 8, 1, 1, 8, 2 };
-    m_sequenceMap[7] = { 7, 8, 1, 1, 8, 2, 6, 7, 3, 3, 7, 4, 3, 4, 1 };
-    m_sequenceMap[8] = { 3, 1, 0 };
-    m_sequenceMap[9] = { 0, 6, 7, 0, 7, 1 };
-    m_sequenceMap[10] = { 3, 1, 0, 7, 8, 5 };
-    m_sequenceMap[11] = { 0, 6, 7, 0, 7, 1, 7, 8, 5, 7, 5, 4, 1, 4, 5 };
-    m_sequenceMap[12] = { 0, 3, 2, 3, 5, 2 };
-    m_sequenceMap[13] = { 0, 6, 7, 0, 7, 1, 1, 5, 2, 1, 4, 5, 7, 5, 4 };
-    m_sequenceMap[14] = { 7, 8, 1, 1, 8, 2, 3, 1, 0, 3, 4, 1, 3, 7, 4 };
-    m_sequenceMap[15] = { 0, 6, 2, 6, 8, 2 };
+    m_sequenceMap[1] = { 7, 3 };
+    m_sequenceMap[2] = { 7, 5 };
+    m_sequenceMap[3] = { 5, 3 };
+    m_sequenceMap[4] = { 1, 5 };
+    m_sequenceMap[5] = { 1, 5, 7, 3 };
+    m_sequenceMap[6] = { 7, 1 };
+    m_sequenceMap[7] = { 3, 1 };
+    m_sequenceMap[8] = { 3, 1 };
+    m_sequenceMap[9] = { 7, 1 };
+    m_sequenceMap[10] = { 3, 1, 7, 5 };
+    m_sequenceMap[11] = { 1, 5 };
+    m_sequenceMap[12] = { 5, 3 };
+    m_sequenceMap[13] = { 7, 5 };
+    m_sequenceMap[14] = { 7, 3 };
+    m_sequenceMap[15] = { };
 
     m_lengthMap[0] = 0;
-    m_lengthMap[1] = 3;
-    m_lengthMap[2] = 3;
-    m_lengthMap[3] = 6;
-    m_lengthMap[4] = 3;
-    m_lengthMap[5] = 6;
-    m_lengthMap[6] = 6;
-    m_lengthMap[7] = 15;
-    m_lengthMap[8] = 3;
-    m_lengthMap[9] = 6;
-    m_lengthMap[10] = 6;
-    m_lengthMap[11] = 15;
-    m_lengthMap[12] = 6;
-    m_lengthMap[13] = 15;
-    m_lengthMap[14] = 15;
-    m_lengthMap[15] = 6;
+    m_lengthMap[1] = 2;
+    m_lengthMap[2] = 2;
+    m_lengthMap[3] = 2;
+    m_lengthMap[4] = 2;
+    m_lengthMap[5] = 4;
+    m_lengthMap[6] = 2;
+    m_lengthMap[7] = 2;
+    m_lengthMap[8] = 2;
+    m_lengthMap[9] = 2;
+    m_lengthMap[10] = 4;
+    m_lengthMap[11] = 2;
+    m_lengthMap[12] = 2;
+    m_lengthMap[13] = 2;
+    m_lengthMap[14] = 2;
+    m_lengthMap[15] = 0;
 }
 
 void Contour::marchingSquares(float isoValue, std::vector<float>& data)
@@ -74,11 +74,13 @@ void Contour::updateSurface(const float& totalTime, const float& frameTime, cons
 
     glm::mat4 modelViewProj = camera.projection() * camera.pose() * this->pose();
     m_shader->setModelViewProjection(modelViewProj);
-    glDrawArrays(GL_TRIANGLES, 0, m_vertices.size() / 6);
+    glDrawArrays(GL_LINES, 0, m_vertices.size() / 6);
 }
 
 int Contour::updateCell(float isoValue, int corners[4], float* buffer, glm::vec3& color)
 {
+    float zOffset = 0.005f * (m_grid.pointScalars().getMax() - m_grid.pointScalars().getMin());
+
     int code = 0;
     float weight[4];
     for (int j = 0; j < 4; j++)
@@ -133,8 +135,8 @@ int Contour::updateCell(float isoValue, int corners[4], float* buffer, glm::vec3
     v1[1] = v0[1] + (v2[1] - v0[1]) * weight[0];
     v1[2] = m_grid.function(v1[0], v1[1]);
 
-    v5[0] = v2[0] + (v6[0] - v2[0]) * weight[1];
-    v5[1] = v2[1] + (v6[1] - v2[1]) * weight[1];
+    v5[0] = v2[0] + (v8[0] - v2[0]) * weight[1];
+    v5[1] = v2[1] + (v8[1] - v2[1]) * weight[1];
     v5[2] = m_grid.function(v5[0], v5[1]);
 
     v7[0] = v6[0] + (v8[0] - v6[0]) * (1.0f - weight[2]);
@@ -153,20 +155,20 @@ int Contour::updateCell(float isoValue, int corners[4], float* buffer, glm::vec3
 
     std::vector<int> sequence = m_sequenceMap[code];
     int length = m_lengthMap[code];
-    int offset = 0;
+    int bufferOffset = 0;
     for (int i = 0; i < length; i++)
     {
         float* vertex = v[sequence[i]];
 
-        buffer[offset++] = vertex[0];
-        buffer[offset++] = vertex[1];
-        buffer[offset++] = vertex[2] * 1.005f;
-        buffer[offset++] = color.r;
-        buffer[offset++] = color.g;
-        buffer[offset++] = color.b;
+        buffer[bufferOffset++] = vertex[0];
+        buffer[bufferOffset++] = vertex[1];
+        buffer[bufferOffset++] = vertex[2] + zOffset;
+        buffer[bufferOffset++] = color.r;
+        buffer[bufferOffset++] = color.g;
+        buffer[bufferOffset++] = color.b;
     }
 
-    return offset;
+    return bufferOffset;
 }
 
 ColorContour::ColorContour(Grid& grid, const glm::vec3& color)
