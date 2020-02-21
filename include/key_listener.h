@@ -99,7 +99,7 @@ private:
 class ContourKeyListener : public MovableKeyListener
 {
 public:
-	ContourKeyListener(GLFWwindow* window, Contour& contour, float rotate = 1.0f, float scale = 1.01f, float iso = 0.05f);
+	ContourKeyListener(GLFWwindow* window, Contour& contour, float rotate = 1.0f, float scale = 1.01f, float iso = 0.01f);
 	~ContourKeyListener() = default;
 
 private:

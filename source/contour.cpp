@@ -4,7 +4,7 @@
 Contour::Contour(Grid& grid, ShaderBase* contourShader)
     : Surface(contourShader),
         m_grid(grid),
-        m_isoValue(0.2f),
+        m_isoValue(0.5f * (grid.pointScalars().getMax() - grid.pointScalars().getMin())),
         m_prevIsoValue(-1.0f)
 {
     m_sequenceMap[0] = { };
