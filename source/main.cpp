@@ -77,26 +77,12 @@ int main(int argc, char **argv)
 {
 	GLFWwindow* window = initWindow();
 
-	std::string textureNames[6] = {
-		"texture\\cat.jpg",
-		"texture\\nyan.jpg",
-		"texture\\woman.jpg",
-		"texture\\sax.jpg",
-		"texture\\gandalf.jpg",
-		"texture\\table.jpg",
-	};
-
-	MultiTextureBox texBox(textureNames, glm::vec3(1.0f));
-	texBox.init();
-	texBox.translate(glm::vec3(-2.0f, 0, 1.0f));
-
-	ColorBox box(glm::vec4(0.6f, 0.2f, 0.3f, 1.0f), glm::vec3(0.3f));
+	ColorBox box(glm::vec4(0.6f, 0.2f, 0.3f, 0.2f), glm::vec3(2.0f));
 	box.init();
-	box.translate(glm::vec3(2.0f, 0, 1.0f));
+	ShapeKeyListener boxKeyListener = ShapeKeyListener(window, box);
 
-	ColorSphere sphere(glm::vec4(0.3f, 0.5f, 0.8f, 1.0f), 1.0f);
+	ColorSphere sphere(glm::vec4(0.3f, 0.5f, 0.8f, 0.4f), 1.0f);
 	sphere.init();
-	ShapeKeyListener sphereKeyListener = ShapeKeyListener(window, sphere);
 
     UniformGrid grid(calculation, 300, 300, -3.0f, -3.0f, 3.0f, 3.0f);
     grid.init();
@@ -124,9 +110,8 @@ int main(int argc, char **argv)
 
 		camera.update();
         grid.update(camera, light);
-		sphere.update(camera, light);
 		contour.update(camera, light);
-		texBox.update(camera, light);
+		sphere.update(camera, light);
 		box.update(camera, light);
 		light.update(camera);
 
