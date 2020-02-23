@@ -43,9 +43,24 @@ void ShaderBase::printActiveInfo()
 	printf("\n");
 }
 
+void ShaderBase::setBufferColor(int stride, int offset)
+{
+	this->setBufferParameter("vColor", 4, stride, offset);
+}
+
 void ShaderBase::setBufferPosition(int stride, int offset)
 {
 	this->setBufferParameter("vPosition", 3, stride, offset);
+}
+
+void ShaderBase::setBufferNormal(int stride, int offset)
+{
+	this->setBufferParameter("vNormal", 3, stride, offset);
+}
+
+void ShaderBase::setBufferTextureCoord(int stride, int offset)
+{
+	this->setBufferParameter("vTexCoord", 2, stride, offset);
 }
 
 void ShaderBase::setView(const glm::mat4& view)
@@ -67,7 +82,7 @@ void ShaderBase::setBufferParameter(std::string name, int numAttribs, int stride
 {
 	GLuint loc = glGetAttribLocation(m_pid, name.c_str());
 	glEnableVertexAttribArray(loc);
-	glVertexAttribPointer(loc, numAttribs, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(offset * sizeof(float)));
+	glVertexAttribPointer(loc, numAttribs, GL_FLOAT, GL_FALSE, stride, (void*)(offset));
 
 	if (loc == (unsigned int)-1)
 	{
@@ -78,11 +93,6 @@ void ShaderBase::setBufferParameter(std::string name, int numAttribs, int stride
 void ShaderBase::setLightPosition(const glm::vec3& lightPosition)
 {
 	glUniform3fv(glGetUniformLocation(m_pid, "vLightPosition"), 1, &lightPosition[0]);
-}
-
-void ShaderBase::setBufferNormal(int stride, int offset)
-{
-	this->setBufferParameter("vNormal", 3, stride, offset);
 }
 
 void ShaderBase::setShininess(const float shininess)
@@ -111,14 +121,4 @@ void ShaderBase::setMaterial(const Material& material)
 	this->setAmbientColor(material.ambientColor);
 	this->setDiffuseColor(material.diffuseColor);
 	this->setSpecularColor(material.specularColor);
-}
-
-void ShaderBase::setBufferColor(int stride, int offset)
-{
-	this->setBufferParameter("vColor", 4, stride, offset);
-}
-
-void ShaderBase::setBufferTextureCoord(int stride, int offset)
-{
-	this->setBufferParameter("vTexCoord", 2, stride, offset);
 }

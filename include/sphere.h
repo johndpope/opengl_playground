@@ -4,6 +4,13 @@
 #include <shape.h>
 #include <vector>
 
+struct SphereVertexAttribute
+{
+    glm::vec3 position;
+    glm::vec3 normal;
+    glm::vec4 color;
+};
+
 class Sphere : public Shape
 {
 public:
@@ -20,16 +27,16 @@ protected:
 
 	virtual void initSphere(const GLuint& vao, const GLuint& vbo) = 0;
 	virtual void updateSphere(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light) = 0;
-    virtual void generateCustomSphere(std::vector<float>& vertices, float radius);
+    virtual void generateCustomSphere(std::vector<SphereVertexAttribute>& vertices, float radius);
 
-	void generateSphere(std::vector<float>& vertices, float radius, glm::vec4* color = nullptr);
+	void generateSphere(std::vector<SphereVertexAttribute>& vertices, float radius, glm::vec4* color = nullptr);
 
 protected:
-    std::vector<float> m_vertices;
+    int m_numVertices;
 
 private:
-    int triangle(float* vertices, glm::vec3 a, glm::vec3 b, glm::vec3 c, int nDepth, float radius, glm::vec4* color);
-    int divide_triangle(float* vertices, glm::vec3 a, glm::vec3 b, glm::vec3 c, int n, int depth, float radius, glm::vec4* color);
+    int triangle(SphereVertexAttribute* vertices, glm::vec3 a, glm::vec3 b, glm::vec3 c, int nDepth, float radius, glm::vec4* color);
+    int divide_triangle(SphereVertexAttribute* vertices, glm::vec3 a, glm::vec3 b, glm::vec3 c, int n, int depth, float radius, glm::vec4* color);
 	void initShape(const GLuint& vao, const GLuint& vbo);
 	void updateShape(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light);
 
@@ -47,7 +54,7 @@ public:
 	      m_color(glm::vec4(1.0f)) { }
 
 private:
-	void generateCustomSphere(std::vector<float>& vertices, float radius);
+	void generateCustomSphere(std::vector<SphereVertexAttribute>& vertices, float radius);
     void initSphere(const GLuint& vao, const GLuint& vbo);
     void updateSphere(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light);
 
@@ -67,7 +74,7 @@ public:
           m_color(glm::vec4(1.0f)) { }
 
 private:
-	void generateCustomSphere(std::vector<float>& vertices, float radius);
+	void generateCustomSphere(std::vector<SphereVertexAttribute>& vertices, float radius);
     void initSphere(const GLuint& vao, const GLuint& vbo);
     void updateSphere(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light);
 

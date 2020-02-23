@@ -1,7 +1,7 @@
 #pragma once
 #include <grid.h>
 
-void Grid::triangulate(std::vector<float>& data, glm::vec4* color)
+void Grid::triangulate(std::vector<GridVertexAttribute>& data, glm::vec4* color)
 {
     glm::vec4 defaultColor = glm::vec4(1.0f);
     if (color == nullptr)
@@ -9,11 +9,13 @@ void Grid::triangulate(std::vector<float>& data, glm::vec4* color)
         color = &defaultColor;
     }
 
-    const int size = 12 * this->numVertices();
+    const int numCells = this->numCells();
+    const int size = VERTICES_PER_CELL * numCells;
+    int vertexOffset = 0;
     data.resize(size);
 
-    int sequence[6] = { 3, 2, 1, 3, 1, 0 };
-    int numCells = this->numCells();
+    // Iterate over cells
+    int sequence[VERTICES_PER_CELL] = { 3, 2, 1, 3, 1, 0 };
     for (int i = 0; i < numCells; i++)
     {
         int corners[4];
@@ -34,30 +36,17 @@ void Grid::triangulate(std::vector<float>& data, glm::vec4* color)
         glm::vec3 b = vertices[3] - vertices[0];
         glm::vec3 n = glm::normalize(glm::cross(b, a));
 
-        for (int k = 0; k < 6; k++)
+        // Iterate over vertices
+        for (int k = 0; k < VERTICES_PER_CELL; k++)
         {
             int m = sequence[k];
-            int o = (i * 6 + k) * 12;
 
-            // Vertex coordinate
-            data[o + 0] = vertices[m].x;
-            data[o + 1] = vertices[m].y;
-            data[o + 2] = vertices[m].z;
-
-            // Vertex texture coordinate
-            data[o + 3] = ((m == 0) || (m == 3)) ? 0.0f : 1.0f;
-            data[o + 4] = ((m == 0) || (m == 1)) ? 0.0f : 1.0f;
-
-            // Vertex normal
-            data[o + 5] = n.x;
-            data[o + 6] = n.y;
-            data[o + 7] = n.z;
-
-            // Vertex color
-            data[o + 8] = color->x;
-            data[o + 9] = color->y;
-            data[o + 10] = color->z;
-			data[o + 11] = color->a;
+            GridVertexAttribute* attrib = &data[vertexOffset++];
+            attrib->position = vertices[m];
+            attrib->normal = n;
+            attrib->color = *color;
+            attrib->texture.x = ((m == 0) || (m == 3)) ? 0.0f : 1.0f;
+            attrib->texture.y = ((m == 0) || (m == 1)) ? 0.0f : 1.0f;
         }
     }
 }
@@ -91,10 +80,11 @@ void Grid::initSurface(const GLuint& vao, const GLuint& vbo)
         }
     }
 
-    std::vector<float> vertices;
+    std::vector<GridVertexAttribute> vertices;
     this->triangulate(vertices, &glm::vec4(1.0f, 0, 0, 1.0f));
+    m_numVertices = vertices.size();
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GridVertexAttribute) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
 
     this->initGrid(vao, vbo);
 }
@@ -148,9 +138,9 @@ int UniformGrid::findCell(float* p)
 
 void UniformGrid::initGrid(const GLuint& vao, const GLuint& vbo)
 {
-	m_shader->setBufferPosition(12, 0);
-	m_shader->setBufferNormal(12, 5);
-	m_shader->setBufferColor(12, 8);
+    m_shader->setBufferPosition(sizeof(GridVertexAttribute), offsetof(GridVertexAttribute, position));
+    m_shader->setBufferNormal(sizeof(GridVertexAttribute), offsetof(GridVertexAttribute, normal));
+	m_shader->setBufferColor(sizeof(GridVertexAttribute), offsetof(GridVertexAttribute, color));
 }
 
 void UniformGrid::updateGrid(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light)
@@ -164,7 +154,7 @@ void UniformGrid::updateGrid(const float& totalTime, const float& frameTime, con
 	m_shader->setLightPosition(light.translation());
 
 	m_shader->setMaterial(m_material);
-	glDrawArrays(GL_TRIANGLES, 0, this->numVertices());
+	glDrawArrays(GL_TRIANGLES, 0, m_numVertices);
 }
 
 RectilinearGrid::RectilinearGrid(Calculate2DFunction function, std::vector<float>& dimsX, std::vector<float>& dimsY)

@@ -8,6 +8,16 @@
 #include <vector>
 
 #define NUM_BOX_SIDES 6
+#define VERTICES_PER_SIDE 6
+
+struct BoxVertexAttribute
+{
+    glm::vec3 position;
+    glm::vec2 texture;
+    glm::vec3 normal;
+    glm::vec4 color;
+};
+
 class Box : public Shape
 {
 public:
@@ -22,15 +32,17 @@ protected:
 
 	virtual void initBox(const GLuint& vao, const GLuint& vbo) = 0;
 	virtual void updateBox(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light) = 0;
-	virtual void generateCustomBox(float vertices[432], glm::vec3& size);
+	virtual void generateCustomBox(std::vector<BoxVertexAttribute>& vertices, glm::vec3& size);
 
-	void generateBox(float vertices[432], glm::vec3& size, glm::vec4* color = nullptr);
+	void generateBox(std::vector<BoxVertexAttribute>& vertices, glm::vec3& size, glm::vec4* color = nullptr);
+
+	int m_numVertices;
 
 private:
 	void initShape(const GLuint& vao, const GLuint& vbo);
 	void updateShape(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light);
 
-	glm::vec3 m_size;
+    glm::vec3 m_size;
 };
 
 class BasicColorBox : public Box
@@ -40,7 +52,7 @@ public:
 	BasicColorBox(const glm::vec3& size);
 
 private:
-	void generateCustomBox(float vertices[432], glm::vec3& size);
+	void generateCustomBox(std::vector<BoxVertexAttribute>& vertices, glm::vec3& size);
 	void initBox(const GLuint& vao, const GLuint& vbo);
 	void updateBox(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light);
 
@@ -54,7 +66,7 @@ public:
 	ColorBox(const Material material, glm::vec3 size);
 
 private:
-	void generateCustomBox(float vertices[432], glm::vec3& size);
+	void generateCustomBox(std::vector<BoxVertexAttribute>& vertices, glm::vec3& size);
 	void initBox(const GLuint& vao, const GLuint& vbo);
 	void updateBox(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light);
 

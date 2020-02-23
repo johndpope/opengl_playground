@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <ctime>
 #include <box.h>
 
@@ -6,12 +7,12 @@
 #include <stb_image.h>
 #endif
 
-void Box::generateCustomBox(float vertices[432], glm::vec3& size)
+void Box::generateCustomBox(std::vector<BoxVertexAttribute>& vertices, glm::vec3& size)
 {
     this->generateBox(vertices, size);
 }
 
-void Box::generateBox(float vertices[432], glm::vec3& size, glm::vec4* color)
+void Box::generateBox(std::vector<BoxVertexAttribute>& vertices, glm::vec3& size, glm::vec4* color)
 {
     glm::vec4 defaultColor = glm::vec4(1.0f);
     if (color == nullptr)
@@ -42,11 +43,15 @@ void Box::generateBox(float vertices[432], glm::vec3& size, glm::vec4* color)
     glm::vec3 negY[4] = { v0, v5, v4, v1 };
     glm::vec3 negX[4] = { v5, v0, v3, v6 };
 
-    glm::vec3* faces[6] = { posX, posY, posZ, negX, negY, negZ };
-    int sequence[6] = { 0, 1, 2, 0, 2, 3 };
+    glm::vec3* faces[NUM_BOX_SIDES] = { posX, posY, posZ, negX, negY, negZ };
+    int sequence[VERTICES_PER_SIDE] = { 0, 1, 2, 0, 2, 3 };
+    int vertexOffset = 0;
+
+    // Preallocate vertices
+    vertices.resize(NUM_BOX_SIDES * VERTICES_PER_SIDE);
 
     // Iterate over faces
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < NUM_BOX_SIDES; i++)
     {
         // Calculate face normal
         glm::vec3 a = faces[i][2] - faces[i][0];
@@ -54,40 +59,27 @@ void Box::generateBox(float vertices[432], glm::vec3& size, glm::vec4* color)
         glm::vec3 n = glm::normalize(glm::cross(b, a));
 
         // Iterate over vertices
-        for (int k = 0; k < 6; k++)
+        for (int k = 0; k < VERTICES_PER_SIDE; k++)
         {
-            int m = sequence[k];
-            int o = (i * 6 + k) * 12;
+			int m = sequence[k];
 
-            // Vertex coordinate
-            vertices[o + 0] = faces[i][m].x;
-            vertices[o + 1] = faces[i][m].y;
-            vertices[o + 2] = faces[i][m].z;
-
-            // Vertex texture coordinate
-            vertices[o + 3] = ((m == 0) || (m == 3)) ? 0.0f : 1.0f;
-            vertices[o + 4] = ((m == 0) || (m == 1)) ? 0.0f : 1.0f;
-
-            // Vertex normal
-            vertices[o + 5] = n.x;
-            vertices[o + 6] = n.y;
-            vertices[o + 7] = n.z;
-
-            // Vertex color
-            vertices[o + 8] = color->x;
-            vertices[o + 9] = color->y;
-            vertices[o + 10] = color->z;
-			vertices[o + 11] = color->a;
+            BoxVertexAttribute* attrib = &vertices[vertexOffset++];
+            attrib->position = faces[i][m];
+            attrib->normal = n;
+            attrib->color = *color;
+            attrib->texture.x = ((m == 0) || (m == 3)) ? 0.0f : 1.0f;
+            attrib->texture.y = ((m == 0) || (m == 1)) ? 0.0f : 1.0f;
         }
     }
 }
 
 void Box::initShape(const GLuint& vao, const GLuint& vbo)
 {
-    float vertices[432];
+    std::vector<BoxVertexAttribute> vertices;
     this->generateCustomBox(vertices, m_size);
+    m_numVertices = vertices.size();
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(BoxVertexAttribute) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
 
     this->initBox(vao, vbo);
 }
@@ -105,22 +97,22 @@ BasicColorBox::BasicColorBox(const glm::vec3& size)
 	: Box(new BasicColorShader(), size),
 	  m_color(glm::vec4(1.0f)) { }
 
-void BasicColorBox::generateCustomBox(float vertices[432], glm::vec3& size)
+void BasicColorBox::generateCustomBox(std::vector<BoxVertexAttribute>& vertices, glm::vec3& size)
 {
 	this->generateBox(vertices, size, &m_color);
 }
 
 void BasicColorBox::initBox(const GLuint& vao, const GLuint& vbo)
 {
-	m_shader->setBufferPosition(12, 0);
-	m_shader->setBufferColor(12, 8);
+	m_shader->setBufferPosition(sizeof(BoxVertexAttribute), offsetof(BoxVertexAttribute, position));
+	m_shader->setBufferColor(sizeof(BoxVertexAttribute), offsetof(BoxVertexAttribute, color));
 }
 
 void BasicColorBox::updateBox(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light)
 {
 	glm::mat4 modelViewProj = camera.projection() * camera.pose() * this->pose();
 	m_shader->setModelViewProjection(modelViewProj);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDrawArrays(GL_TRIANGLES, 0, m_numVertices);
 }
 
 ColorBox::ColorBox(const glm::vec4 color, glm::vec3 size)
@@ -140,16 +132,16 @@ ColorBox::ColorBox(const Material material, glm::vec3 size)
 	  m_material(material),
 	  m_color(glm::vec4(1.0f)) { }
 
-void ColorBox::generateCustomBox(float vertices[432], glm::vec3& size)
+void ColorBox::generateCustomBox(std::vector<BoxVertexAttribute>& vertices, glm::vec3& size)
 {
 	this->generateBox(vertices, size, &m_color);
 }
 
 void ColorBox::initBox(const GLuint& vao, const GLuint& vbo)
 {
-	m_shader->setBufferPosition(12, 0);
-	m_shader->setBufferNormal(12, 5);
-	m_shader->setBufferColor(12, 8);
+    m_shader->setBufferPosition(sizeof(BoxVertexAttribute), offsetof(BoxVertexAttribute, position));
+    m_shader->setBufferNormal(sizeof(BoxVertexAttribute), offsetof(BoxVertexAttribute, normal));
+	m_shader->setBufferColor(sizeof(BoxVertexAttribute), offsetof(BoxVertexAttribute, color));
 }
 
 void ColorBox::updateBox(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light)
@@ -163,7 +155,7 @@ void ColorBox::updateBox(const float& totalTime, const float& frameTime, const C
 	m_shader->setLightPosition(light.translation());
 
 	m_shader->setMaterial(m_material);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDrawArrays(GL_TRIANGLES, 0, m_numVertices);
 }
 
 MultiTextureBox::MultiTextureBox(const std::string texturePaths[NUM_BOX_SIDES], glm::vec3 size)
@@ -192,9 +184,9 @@ MultiTextureBox::MultiTextureBox(const TextureMaterial textureMaterials[NUM_BOX_
 
 void MultiTextureBox::initBox(const GLuint& vao, const GLuint& vbo)
 {
-	m_shader->setBufferPosition(12, 0);
-	m_shader->setBufferTextureCoord(12, 3);
-	m_shader->setBufferNormal(12, 5);
+    m_shader->setBufferPosition(sizeof(BoxVertexAttribute), offsetof(BoxVertexAttribute, position));
+    m_shader->setBufferNormal(sizeof(BoxVertexAttribute), offsetof(BoxVertexAttribute, normal));
+	m_shader->setBufferTextureCoord(sizeof(BoxVertexAttribute), offsetof(BoxVertexAttribute, texture));
 
 	glGenTextures(NUM_BOX_SIDES, m_textures);
 	for (int i = 0; i < NUM_BOX_SIDES; i++)
@@ -231,6 +223,6 @@ void MultiTextureBox::updateBox(const float& totalTime, const float& frameTime, 
 	{
 		m_shader->setMaterial(m_textureMaterials[i].material);
 		glBindTexture(GL_TEXTURE_2D, m_textures[i]);
-		glDrawArrays(GL_TRIANGLES, 6 * i, 6);
+		glDrawArrays(GL_TRIANGLES, VERTICES_PER_SIDE * i, VERTICES_PER_SIDE);
 	}
 }

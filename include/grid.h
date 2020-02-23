@@ -7,7 +7,17 @@
 #include <shader.h>
 #include <scalar_attributes.h>
 
+#define VERTICES_PER_CELL 6
+
 typedef std::function<float(float, float)> Calculate2DFunction;
+
+struct GridVertexAttribute
+{
+    glm::vec3 position;
+    glm::vec2 texture;
+    glm::vec3 normal;
+    glm::vec4 color;
+};
 
 class Grid : public Surface
 {
@@ -20,10 +30,9 @@ public:
 	virtual int getCell(int, int*) = 0;
 	virtual int findCell(float*) = 0;
 	virtual ScalarAttributes& pointScalars() = 0;
-	int numVertices() { return 6 * this->numCells(); }
     float function(float x, float y) { return m_function(x, y); }
 
-    void triangulate(std::vector<float>& data, glm::vec4* color = nullptr);
+    void triangulate(std::vector<GridVertexAttribute>& data, glm::vec4* color = nullptr);
 
 protected:
 	Grid(Calculate2DFunction function, ShaderBase* shader);
@@ -33,6 +42,7 @@ protected:
 
     Calculate2DFunction m_function;
     Material m_material;
+    int m_numVertices;
 
 private:
     void initSurface(const GLuint& vao, const GLuint& vbo);

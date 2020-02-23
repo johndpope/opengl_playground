@@ -42,16 +42,15 @@ Contour::Contour(Grid& grid, ShaderBase* contourShader)
     m_lengthMap[15] = 0;
 }
 
-void Contour::marchingSquares(float isoValue, std::vector<float>& data)
+void Contour::marchingSquares(float isoValue, std::vector<ContourVertexAttribute>& data)
 {
-    data.clear();
-    data.resize(m_grid.numCells() * 15 * 7);
+    data.resize(m_grid.numCells() * VERTICES_PER_EDGE * MAX_EDGES_PER_CELL);
 
     int numCells = m_grid.numCells();
     int offset = 0;
     for (int i = 0; i < numCells; i++)
     {
-        int corners[4];
+        int corners[CORNERS_PER_CELL];
         m_grid.getCell(i, corners);
         glm::vec4 color = this->getColor(isoValue, corners);
         offset += this->updateCell(isoValue, corners, &data[offset], color);
@@ -64,26 +63,29 @@ void Contour::updateSurface(const float& totalTime, const float& frameTime, cons
 {
     if (m_isoValue != m_prevIsoValue)
     {
-        marchingSquares(m_isoValue, m_vertices);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * m_vertices.size(), m_vertices.data(), GL_STATIC_DRAW);
-        m_shader->setBufferPosition(7, 0);
-        m_shader->setBufferColor(7, 3);
+        std::vector<ContourVertexAttribute> vertices;
+        marchingSquares(m_isoValue, vertices);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(ContourVertexAttribute) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+        m_numVertices = vertices.size();
+
+        m_shader->setBufferPosition(sizeof(ContourVertexAttribute), offsetof(ContourVertexAttribute, position));
+        m_shader->setBufferColor(sizeof(ContourVertexAttribute), offsetof(ContourVertexAttribute, color));
 
         m_prevIsoValue = m_isoValue;
     }
 
     glm::mat4 modelViewProj = camera.projection() * camera.pose() * this->pose();
     m_shader->setModelViewProjection(modelViewProj);
-    glDrawArrays(GL_LINES, 0, m_vertices.size() / 7);
+    glDrawArrays(GL_LINES, 0, m_numVertices);
 }
 
-int Contour::updateCell(float isoValue, int corners[4], float* buffer, glm::vec4& color)
+int Contour::updateCell(float isoValue, int corners[CORNERS_PER_CELL], ContourVertexAttribute* buffer, glm::vec4& color)
 {
     float zOffset = 0.005f * (m_grid.pointScalars().getMax() - m_grid.pointScalars().getMin());
 
     int code = 0;
-    float weight[4];
-    for (int j = 0; j < 4; j++)
+    float weight[CORNERS_PER_CELL];
+    for (int j = 0; j < CORNERS_PER_CELL; j++)
     {
         float value1 = m_grid.pointScalars().getC0Scalar(corners[j]);
         float value2 = m_grid.pointScalars().getC0Scalar(corners[(j + 1) % 4]);
@@ -155,28 +157,25 @@ int Contour::updateCell(float isoValue, int corners[4], float* buffer, glm::vec4
 
     std::vector<int> sequence = m_sequenceMap[code];
     int length = m_lengthMap[code];
-    int bufferOffset = 0;
+    int vertexOffset = 0;
     for (int i = 0; i < length; i++)
     {
-        float* vertex = v[sequence[i]];
+        float* position = v[sequence[i]];
 
-        buffer[bufferOffset++] = vertex[0];
-        buffer[bufferOffset++] = vertex[1];
-        buffer[bufferOffset++] = vertex[2] + zOffset;
-        buffer[bufferOffset++] = color.r;
-        buffer[bufferOffset++] = color.g;
-        buffer[bufferOffset++] = color.b;
-		buffer[bufferOffset++] = color.a;
+        buffer[i].position.x = position[0];
+        buffer[i].position.y = position[1];
+        buffer[i].position.z = position[2] + zOffset;
+        buffer[i].color = color;
     }
 
-    return bufferOffset;
+    return length;
 }
 
 ColorContour::ColorContour(Grid& grid, const glm::vec4& color)
     : Contour(grid, new BasicColorShader()),
       m_color(color) { }
 
-glm::vec4& ColorContour::getColor(float isoValue, int corners[4])
+glm::vec4& ColorContour::getColor(float isoValue, int corners[CORNERS_PER_CELL])
 {
     return m_color;
 }
