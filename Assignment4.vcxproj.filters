@@ -133,5 +133,8 @@
     <ClCompile Include="source\surface.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="source\sphere.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -60,6 +60,7 @@
     <ClCompile Include="source\rectilinear_grid.cpp" />
     <ClCompile Include="source\scalar_attributes.cpp" />
     <ClCompile Include="source\shader.cpp" />
+    <ClCompile Include="source\sphere.cpp" />
     <ClCompile Include="source\surface.cpp" />
     <ClCompile Include="source\uniform_grid.cpp" />
   </ItemGroup>
