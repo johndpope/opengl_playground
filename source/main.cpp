@@ -41,7 +41,7 @@ GLFWwindow* initWindow()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Exercise 3 - Textures, Shading, Lighting", NULL, NULL);
+	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Assignment 4", NULL, NULL);
 	if (NULL == window)
 	{
 		fprintf(stderr, "Failed to create GLFW window.\n");
@@ -73,6 +73,13 @@ float calculation(float x, float y)
 	return (sinf(10 * x) * sinf(10 * y)) / (100 * x * y);
 }
 
+glm::vec4 color(float value, float min, float max)
+{
+	float norm = (value - max) / (min - max);
+
+    return glm::vec4(glm::vec3(1 - norm), 1.0f);
+}
+
 int main(int argc, char **argv)
 {
 	GLFWwindow* window = initWindow();
@@ -84,7 +91,7 @@ int main(int argc, char **argv)
 	ColorSphere sphere(glm::vec4(0.3f, 0.5f, 0.8f, 0.4f), 1.0f);
 	sphere.init();
 
-    UniformGrid grid(calculation, 300, 300, -3.0f, -3.0f, 3.0f, 3.0f);
+    UniformGrid grid(calculation, 300, 300, -3.0f, -3.0f, 3.0f, 3.0f, color);
     grid.init();
 	SurfaceKeyListener surfaceKeyListener = SurfaceKeyListener(window, grid);
 
@@ -105,7 +112,7 @@ int main(int argc, char **argv)
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
-		glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
+		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera.update();

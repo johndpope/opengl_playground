@@ -10,6 +10,7 @@
 #define VERTICES_PER_CELL 6
 
 typedef std::function<float(float, float)> Calculate2DFunction;
+typedef std::function<glm::vec4(float, float, float)> ColorFunction;
 
 struct GridVertexAttribute
 {
@@ -30,21 +31,25 @@ public:
 	virtual int getCell(int, int*) = 0;
 	virtual int findCell(float*) = 0;
 	virtual ScalarAttributes& pointScalars() = 0;
-    float function(float x, float y) { return m_function(x, y); }
+    float function(float x, float y) { return m_calcFunction(x, y); }
 
-    void triangulate(std::vector<GridVertexAttribute>& data, glm::vec4* color = nullptr);
+    void triangulate(std::vector<GridVertexAttribute>& data);
 
 protected:
-	Grid(Calculate2DFunction function, ShaderBase* shader);
+	Grid(Calculate2DFunction calcFunction, ShaderBase* shader, ColorFunction colorFunction = nullptr);
 
 	virtual void initGrid(const GLuint& vao, const GLuint& vbo) = 0;
 	virtual void updateGrid(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light) = 0;
 
-    Calculate2DFunction m_function;
+    Calculate2DFunction m_calcFunction;
+    ColorFunction m_colorFunction;
     Material m_material;
+    glm::vec4 m_defaultColor;
     int m_numVertices;
 
 private:
+    glm::vec4& defaultColor(float value, float min, float max) { return m_defaultColor; }
+
     void initSurface(const GLuint& vao, const GLuint& vbo);
 	void updateSurface(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light);
 };
@@ -52,7 +57,17 @@ private:
 class UniformGrid : public Grid
 {
 public:
-	UniformGrid(Calculate2DFunction function, int numPointsX, int numPointsY, float minX, float minY, float maxX, float maxY);
+	UniformGrid(
+        Calculate2DFunction function,
+        int numPointsX,
+        int numPointsY,
+        float minX,
+        float minY,
+        float maxX,
+        float maxY,
+        ColorFunction colorFunction = nullptr
+    );
+
 	~UniformGrid() = default;
 
 	int	numPoints() { return m_numPointsX * m_numPointsY; }
@@ -61,14 +76,9 @@ public:
 	int getDimension2() { return m_numPointsY; }
 	ScalarAttributes& pointScalars() { return m_scalars; }
 
-	void getPoint(int i, float* p)
-	{
-		p[0] = m_minX + (i % m_numPointsX) * m_cellWidth;
-		p[1] = m_minY + (i / m_numPointsX) * m_cellHeight;
-	}
-
 	int	findCell(float*);
 	int	getCell(int i, int* c);
+    void getPoint(int i, float* p);
 
 protected:
 	ScalarAttributes m_scalars;
@@ -88,7 +98,13 @@ private:
 class RectilinearGrid : public UniformGrid
 {
 public:
-	RectilinearGrid(Calculate2DFunction function, std::vector<float>& dimsX, std::vector<float>& dimsY);
+	RectilinearGrid(
+        Calculate2DFunction function,
+        std::vector<float>& dimsX,
+        std::vector<float>& dimsY,
+        ColorFunction colorFunction = nullptr
+    );
+
 	void getPoint(int i, float* p);
 
 private:

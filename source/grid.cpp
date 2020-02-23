@@ -1,14 +1,30 @@
 #pragma once
 #include <grid.h>
 
-void Grid::triangulate(std::vector<GridVertexAttribute>& data, glm::vec4* color)
+Grid::Grid(Calculate2DFunction function, ShaderBase* shader, ColorFunction colorFunction)
+    : Surface(shader),
+      m_calcFunction(function),
+      m_colorFunction(colorFunction),
+      m_defaultColor(glm::vec4(1.0f, 0, 0, 1.0f))
 {
-    glm::vec4 defaultColor = glm::vec4(1.0f);
-    if (color == nullptr)
+    if (m_colorFunction == nullptr)
     {
-        color = &defaultColor;
+        m_colorFunction = ColorFunction(
+                            std::bind(&Grid::defaultColor,
+                                      this,
+                                      std::placeholders::_1,
+                                      std::placeholders::_2,
+                                      std::placeholders::_3));
     }
 
+    m_material.shininess = rand() / (float)RAND_MAX;
+    m_material.ambientColor = glm::vec3(0.1f, 0.1f, 0.1f);
+    m_material.diffuseColor = glm::vec3(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX);
+    m_material.specularColor = glm::vec3(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX);
+}
+
+void Grid::triangulate(std::vector<GridVertexAttribute>& data)
+{
     const int numCells = this->numCells();
     const int size = VERTICES_PER_CELL * numCells;
     int vertexOffset = 0;
@@ -44,21 +60,13 @@ void Grid::triangulate(std::vector<GridVertexAttribute>& data, glm::vec4* color)
             GridVertexAttribute* attrib = &data[vertexOffset++];
             attrib->position = vertices[m];
             attrib->normal = n;
-            attrib->color = *color;
             attrib->texture.x = ((m == 0) || (m == 3)) ? 0.0f : 1.0f;
             attrib->texture.y = ((m == 0) || (m == 1)) ? 0.0f : 1.0f;
+            attrib->color = m_colorFunction(attrib->position.z,
+                                            this->pointScalars().getMin(),
+                                            this->pointScalars().getMax());
         }
     }
-}
-
-Grid::Grid(Calculate2DFunction function, ShaderBase* shader) :
-    Surface(shader),
-    m_function(function)
-{
-    m_material.shininess = rand() / (float)RAND_MAX;
-    m_material.ambientColor = glm::vec3(0.1f, 0.1f, 0.1f);
-    m_material.diffuseColor = glm::vec3(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX);
-    m_material.specularColor = glm::vec3(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX);
 }
 
 void Grid::initSurface(const GLuint& vao, const GLuint& vbo)
@@ -71,7 +79,7 @@ void Grid::initSurface(const GLuint& vao, const GLuint& vbo)
 
         try
         {
-            float value = m_function(point[0], point[1]);
+            float value = m_calcFunction(point[0], point[1]);
             this->pointScalars().setC0Scalar(i, value);
         }
         catch (...)
@@ -81,7 +89,7 @@ void Grid::initSurface(const GLuint& vao, const GLuint& vbo)
     }
 
     std::vector<GridVertexAttribute> vertices;
-    this->triangulate(vertices, &glm::vec4(1.0f, 0, 0, 1.0f));
+    this->triangulate(vertices);
     m_numVertices = vertices.size();
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(GridVertexAttribute) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
@@ -94,15 +102,23 @@ void Grid::updateSurface(const float& totalTime, const float& frameTime, const C
     this->updateGrid(totalTime, frameTime, camera, light);
 }
 
-UniformGrid::UniformGrid(Calculate2DFunction function, int numPointsX, int numPointsY, float minX, float minY, float maxX, float maxY)
-	: Grid(function, new ColorShader),
-	m_scalars(numPointsX * numPointsY),
-	m_numPointsX(numPointsX),
-	m_numPointsY(numPointsY),
-	m_minX(minX),
-	m_minY(minY),
-	m_cellWidth((maxX - m_minX) / (numPointsX - 1)),
-	m_cellHeight((maxY - m_minY) / (numPointsY - 1)) { }
+UniformGrid::UniformGrid(
+	Calculate2DFunction function,
+	int numPointsX,
+	int numPointsY,
+	float minX,
+	float minY,
+	float maxX,
+	float maxY,
+	ColorFunction colorFunction)
+	: Grid(function, new BasicColorShader, colorFunction),
+	  m_scalars(numPointsX * numPointsY),
+	  m_numPointsX(numPointsX),
+	  m_numPointsY(numPointsY),
+	  m_minX(minX),
+	  m_minY(minY),
+	  m_cellWidth((maxX - m_minX) / (numPointsX - 1)),
+	  m_cellHeight((maxY - m_minY) / (numPointsY - 1)) { }
 
 // Given lexicographic index, find cell vertices (quads assumed)
 int	UniformGrid::getCell(int i, int* v)
@@ -136,6 +152,12 @@ int UniformGrid::findCell(float* p)
 	return C[0] + C[1] * m_numPointsX;
 }
 
+void UniformGrid::getPoint(int i, float* p)
+{
+    p[0] = m_minX + (i % m_numPointsX) * m_cellWidth;
+    p[1] = m_minY + (i / m_numPointsX) * m_cellHeight;
+}
+
 void UniformGrid::initGrid(const GLuint& vao, const GLuint& vbo)
 {
     m_shader->setBufferPosition(sizeof(GridVertexAttribute), offsetof(GridVertexAttribute, position));
@@ -157,16 +179,17 @@ void UniformGrid::updateGrid(const float& totalTime, const float& frameTime, con
 	glDrawArrays(GL_TRIANGLES, 0, m_numVertices);
 }
 
-RectilinearGrid::RectilinearGrid(Calculate2DFunction function, std::vector<float>& dimsX, std::vector<float>& dimsY)
+RectilinearGrid::RectilinearGrid(Calculate2DFunction function, std::vector<float>& dimsX, std::vector<float>& dimsY, ColorFunction colorFunction)
 	: UniformGrid(function,
 		dimsX.size(),				//number of samples along X
 		dimsY.size(),				//number of samples along y
 		dimsX[0],					//minimal X value
 		dimsY[0],					//minimal Y value
 		dimsX[dimsX.size() - 1],	//maximal X value
-		dimsY[dimsY.size() - 1]),	//maximal Y value
-	m_dX(dimsX),
-	m_dY(dimsX) { }
+		dimsY[dimsY.size() - 1],
+		colorFunction),	//maximal Y value
+	  m_dX(dimsX),
+	  m_dY(dimsX) { }
 
 void RectilinearGrid::getPoint(int i, float* p)
 {
