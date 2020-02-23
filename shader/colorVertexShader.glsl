@@ -1,7 +1,7 @@
 #version 440 core //GLSL Version 4.4
 
 layout(location = 0) in vec3 vPosition;
-layout(location = 1) in vec3 vColor;
+layout(location = 1) in vec4 vColor;
 layout(location = 2) in vec3 vNormal;
 
 uniform vec3 vLightPosition;
@@ -13,7 +13,7 @@ uniform mat4 mModelViewProj;
 smooth out vec3 vEyeSpaceNormal;
 smooth out vec3 vEyeSpacePosition;
 smooth out vec3 vEyeSpaceLightPosition;
-smooth out vec3 vFragColor;
+smooth out vec4 vFragColor;
 
 void main()
 {

@@ -1,15 +1,15 @@
 #pragma once
 #include <grid.h>
 
-void Grid::triangulate(std::vector<float>& data, glm::vec3* color)
+void Grid::triangulate(std::vector<float>& data, glm::vec4* color)
 {
-    glm::vec3 defaultColor = glm::vec3(1.0f);
+    glm::vec4 defaultColor = glm::vec4(1.0f);
     if (color == nullptr)
     {
         color = &defaultColor;
     }
 
-    const int size = 11 * this->numVertices();
+    const int size = 12 * this->numVertices();
     data.resize(size);
 
     int sequence[6] = { 3, 2, 1, 3, 1, 0 };
@@ -37,7 +37,7 @@ void Grid::triangulate(std::vector<float>& data, glm::vec3* color)
         for (int k = 0; k < 6; k++)
         {
             int m = sequence[k];
-            int o = (i * 6 + k) * 11;
+            int o = (i * 6 + k) * 12;
 
             // Vertex coordinate
             data[o + 0] = vertices[m].x;
@@ -57,6 +57,7 @@ void Grid::triangulate(std::vector<float>& data, glm::vec3* color)
             data[o + 8] = color->x;
             data[o + 9] = color->y;
             data[o + 10] = color->z;
+			data[o + 11] = color->a;
         }
     }
 }
@@ -91,7 +92,7 @@ void Grid::initSurface(const GLuint& vao, const GLuint& vbo)
     }
 
     std::vector<float> vertices;
-    this->triangulate(vertices, &glm::vec3(1.0f, 0, 0));
+    this->triangulate(vertices, &glm::vec4(1.0f, 0, 0, 1.0f));
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
 
@@ -101,4 +102,90 @@ void Grid::initSurface(const GLuint& vao, const GLuint& vbo)
 void Grid::updateSurface(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light)
 {
     this->updateGrid(totalTime, frameTime, camera, light);
+}
+
+UniformGrid::UniformGrid(Calculate2DFunction function, int numPointsX, int numPointsY, float minX, float minY, float maxX, float maxY)
+	: Grid(function, new ColorShader),
+	m_scalars(numPointsX * numPointsY),
+	m_numPointsX(numPointsX),
+	m_numPointsY(numPointsY),
+	m_minX(minX),
+	m_minY(minY),
+	m_cellWidth((maxX - m_minX) / (numPointsX - 1)),
+	m_cellHeight((maxY - m_minY) / (numPointsY - 1)) { }
+
+// Given lexicographic index, find cell vertices (quads assumed)
+int	UniformGrid::getCell(int i, int* v)
+{
+	int cell_row = i / (m_numPointsX - 1);
+
+	v[0] = i + cell_row;
+	v[1] = v[0] + 1;
+	v[2] = v[1] + m_numPointsX;
+	v[3] = v[0] + m_numPointsX;
+
+	return 4;
+}
+
+// Given 2D position p = px[0], py[1] find cell which contains it
+int UniformGrid::findCell(float* p)
+{
+	int C[2];
+
+	// Compute cell coordinates C[0], C[1]
+	C[0] = floor((p[0] - m_minX) * m_numPointsX / m_cellWidth);
+	C[1] = floor((p[1] - m_minY) * m_numPointsY / m_cellHeight);
+
+	// Test if p is inside the dataset
+	if (C[0] < 0 || C[0] >= m_numPointsX - 1 || C[1] < 0 || C[1] >= m_numPointsY - 1)
+	{
+		return -1;
+	}
+
+	// Go from cell coordinates to cell index
+	return C[0] + C[1] * m_numPointsX;
+}
+
+void UniformGrid::initGrid(const GLuint& vao, const GLuint& vbo)
+{
+	m_shader->setBufferPosition(12, 0);
+	m_shader->setBufferNormal(12, 5);
+	m_shader->setBufferColor(12, 8);
+}
+
+void UniformGrid::updateGrid(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light)
+{
+	glm::mat4 modelView = camera.pose() * this->pose();
+	glm::mat4 modelViewProj = camera.projection() * modelView;
+
+	m_shader->setView(camera.pose());
+	m_shader->setModelView(modelView);
+	m_shader->setModelViewProjection(modelViewProj);
+	m_shader->setLightPosition(light.translation());
+
+	m_shader->setMaterial(m_material);
+	glDrawArrays(GL_TRIANGLES, 0, this->numVertices());
+}
+
+RectilinearGrid::RectilinearGrid(Calculate2DFunction function, std::vector<float>& dimsX, std::vector<float>& dimsY)
+	: UniformGrid(function,
+		dimsX.size(),				//number of samples along X
+		dimsY.size(),				//number of samples along y
+		dimsX[0],					//minimal X value
+		dimsY[0],					//minimal Y value
+		dimsX[dimsX.size() - 1],	//maximal X value
+		dimsY[dimsY.size() - 1]),	//maximal Y value
+	m_dX(dimsX),
+	m_dY(dimsX) { }
+
+void RectilinearGrid::getPoint(int i, float* p)
+{
+	// Compute vertex grid-coordinates row, col
+	int row = i / m_numPointsX;
+	int col = i % m_numPointsX;
+
+	// Find actual vertex coordinates using the sampling-steps
+	// stored in dX[],dY[] for the X and Y axes
+	p[0] = m_dX[col];
+	p[1] = m_dY[row];
 }

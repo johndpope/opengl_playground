@@ -111,8 +111,8 @@ void CameraKeyListener::translate(glm::vec3 moveDirection, float speed)
 
 MovableKeyListener::MovableKeyListener(GLFWwindow* window, MovableObject& movable, float rotate, float scale)
     : m_movable(movable),
-        m_rotate(rotate),
-        m_scale(scale)
+      m_rotate(rotate),
+      m_scale(scale)
 {
     KeyListener::registerCallback(window, GLFW_KEY_EQUAL, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&MovableKeyListener::bigger, this)));
     KeyListener::registerCallback(window, GLFW_KEY_EQUAL, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&MovableKeyListener::bigger, this)));
@@ -157,7 +157,7 @@ void MovableKeyListener::rotateZ()
 
 ShapeKeyListener::ShapeKeyListener(GLFWwindow* window, Shape& shape, float rotate, float scale)
     : MovableKeyListener(window, shape, rotate, scale),
-        m_shape(shape)
+      m_shape(shape)
 {
     KeyListener::registerCallback(window, GLFW_KEY_F, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&ShapeKeyListener::wireframe, this)));
 }
@@ -170,7 +170,7 @@ void ShapeKeyListener::wireframe()
 
 SurfaceKeyListener::SurfaceKeyListener(GLFWwindow* window, Surface& surface, float rotate, float scale)
     : MovableKeyListener(window, surface, rotate, scale),
-        m_surface(surface)
+      m_surface(surface)
 {
     KeyListener::registerCallback(window, GLFW_KEY_F, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&SurfaceKeyListener::wireframe, this)));
 }
@@ -183,8 +183,8 @@ void SurfaceKeyListener::wireframe()
 
 ContourKeyListener::ContourKeyListener(GLFWwindow* window, Contour& contour, float rotate, float scale, float iso)
     : MovableKeyListener(window, contour, rotate, scale),
-        m_iso(iso),
-        m_contour(contour)
+      m_iso(iso),
+      m_contour(contour)
 {
     KeyListener::registerCallback(window, GLFW_KEY_U, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&ContourKeyListener::isoUp, this)));
     KeyListener::registerCallback(window, GLFW_KEY_U, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&ContourKeyListener::isoUp, this)));

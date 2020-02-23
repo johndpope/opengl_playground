@@ -28,7 +28,6 @@
     <ClInclude Include="include\light_shape.h" />
     <ClInclude Include="include\material.h" />
     <ClInclude Include="include\movable.h" />
-    <ClInclude Include="include\rectilinear_grid.h" />
     <ClInclude Include="include\scalar_attributes.h" />
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\cshader.h" />
@@ -37,7 +36,6 @@
     <ClInclude Include="include\stb_image.h" />
     <ClInclude Include="include\stb_image_write.h" />
     <ClInclude Include="include\surface.h" />
-    <ClInclude Include="include\uniform_grid.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\basicColorFragmentShader.glsl" />
@@ -57,12 +55,10 @@
     <ClCompile Include="source\light_shape.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\movable.cpp" />
-    <ClCompile Include="source\rectilinear_grid.cpp" />
     <ClCompile Include="source\scalar_attributes.cpp" />
     <ClCompile Include="source\shader.cpp" />
     <ClCompile Include="source\sphere.cpp" />
     <ClCompile Include="source\surface.cpp" />
-    <ClCompile Include="source\uniform_grid.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

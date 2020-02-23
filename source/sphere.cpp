@@ -8,7 +8,7 @@ void Sphere::generateCustomSphere(std::vector<float>& vertices, float radius)
     this->generateSphere(vertices, radius);
 }
 
-void Sphere::generateSphere(std::vector<float>& vertices, float radius, glm::vec3* color)
+void Sphere::generateSphere(std::vector<float>& vertices, float radius, glm::vec4* color)
 {
     // Convert radius to corners
     std::vector<glm::vec3> v = {
@@ -19,7 +19,7 @@ void Sphere::generateSphere(std::vector<float>& vertices, float radius, glm::vec
     };
 
     // Collect default color
-    glm::vec3 defaultColor = glm::vec3(1.0f);
+    glm::vec4 defaultColor = glm::vec4(1.0f);
     if (color == nullptr)
     {
         color = &defaultColor;
@@ -27,7 +27,7 @@ void Sphere::generateSphere(std::vector<float>& vertices, float radius, glm::vec
 
     // Compute size of vertices
     int offset = 0;
-    vertices.resize(9 * 3 * glm::pow(4.0f, (m_levels + 1)));
+    vertices.resize(10 * 3 * glm::pow(4.0f, (m_levels + 1)));
 
     // Generate vertices
     offset += divide_triangle(&vertices[offset], v[0], v[1], v[2], m_levels, m_levels, radius, color);
@@ -43,7 +43,7 @@ int Sphere::triangle(
     glm::vec3 c,
     int nDepth,
     float radius,
-    glm::vec3* color
+    glm::vec4* color
 )
 {
     // Compute normal
@@ -66,9 +66,10 @@ int Sphere::triangle(
         vertices[offset++] = n.z;
 
         // Vertex color
-        vertices[offset++] = color->x;
-        vertices[offset++] = color->y;
-        vertices[offset++] = color->z;
+        vertices[offset++] = color->r;
+        vertices[offset++] = color->g;
+        vertices[offset++] = color->b;
+		vertices[offset++] = color->a;
     }
 
     return offset;
@@ -82,7 +83,7 @@ int Sphere::divide_triangle(
     int n,
     int depth,
     float radius,
-    glm::vec3* color
+    glm::vec4* color
 )
 {
     int offset = 0;
@@ -119,7 +120,7 @@ void Sphere::updateShape(const float& totalTime, const float& frameTime, const C
     this->updateSphere(totalTime, frameTime, camera, light);
 }
 
-ColorSphere::ColorSphere(const glm::vec3 color, float radius)
+ColorSphere::ColorSphere(const glm::vec4& color, float radius)
     : Sphere(new ColorShader(), radius),
         m_color(color)
 {
@@ -138,9 +139,9 @@ void ColorSphere::generateCustomSphere(std::vector<float>& vertices, float radiu
 
 void ColorSphere::initSphere(const GLuint& vao, const GLuint& vbo)
 {
-    m_shader->setBufferPosition(9, 0);
-    m_shader->setBufferNormal(9, 3);
-    m_shader->setBufferColor(9, 6);
+    m_shader->setBufferPosition(10, 0);
+    m_shader->setBufferNormal(10, 3);
+    m_shader->setBufferColor(10, 6);
 }
 
 void ColorSphere::updateSphere(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light)
@@ -154,7 +155,7 @@ void ColorSphere::updateSphere(const float& totalTime, const float& frameTime, c
     m_shader->setLightPosition(light.translation());
 
     m_shader->setMaterial(m_material);
-    glDrawArrays(GL_TRIANGLES, 0, m_vertices.size() / 9);
+    glDrawArrays(GL_TRIANGLES, 0, m_vertices.size() / 10);
 }
 
 void BasicColorSphere::generateCustomSphere(std::vector<float>& vertices, float radius)
@@ -164,13 +165,13 @@ void BasicColorSphere::generateCustomSphere(std::vector<float>& vertices, float 
 
 void BasicColorSphere::initSphere(const GLuint& vao, const GLuint& vbo)
 {
-    m_shader->setBufferPosition(9, 0);
-    m_shader->setBufferColor(9, 6);
+    m_shader->setBufferPosition(10, 0);
+    m_shader->setBufferColor(10, 6);
 }
 
 void BasicColorSphere::updateSphere(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light)
 {
     glm::mat4 modelViewProj = camera.projection() * camera.pose() * this->pose();
     m_shader->setModelViewProjection(modelViewProj);
-    glDrawArrays(GL_TRIANGLES, 0, m_vertices.size() / 9);
+    glDrawArrays(GL_TRIANGLES, 0, m_vertices.size() / 10);
 }

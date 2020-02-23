@@ -115,7 +115,7 @@ void ShaderBase::setMaterial(const Material& material)
 
 void ShaderBase::setBufferColor(int stride, int offset)
 {
-	this->setBufferParameter("vColor", 3, stride, offset);
+	this->setBufferParameter("vColor", 4, stride, offset);
 }
 
 void ShaderBase::setBufferTextureCoord(int stride, int offset)

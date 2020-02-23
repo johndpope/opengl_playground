@@ -7,7 +7,7 @@
 #include <light_shape.h>
 #include <key_listener.h>
 #include <sphere.h>
-#include <uniform_grid.h>
+#include <grid.h>
 
 const GLuint SCR_WIDTH = 1200;
 const GLuint SCR_HEIGHT = 1200;
@@ -60,19 +60,51 @@ GLFWwindow* initWindow()
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_DEBUG_OUTPUT);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glDebugMessageCallback(messageCallback, 0);
 
 	return window;
 }
 
+float calculation(float x, float y)
+{
+	return (sinf(10 * x) * sinf(10 * y)) / (100 * x * y);
+}
+
 int main(int argc, char **argv)
 {
 	GLFWwindow* window = initWindow();
 
-	ColorSphere sphere(glm::vec3(0.3f, 0.5f, 0.8f), 1.0f);
+	std::string textureNames[6] = {
+		"texture\\cat.jpg",
+		"texture\\nyan.jpg",
+		"texture\\woman.jpg",
+		"texture\\sax.jpg",
+		"texture\\gandalf.jpg",
+		"texture\\table.jpg",
+	};
+
+	MultiTextureBox texBox(textureNames, glm::vec3(1.0f));
+	texBox.init();
+	texBox.translate(glm::vec3(-2.0f, 0, 1.0f));
+
+	ColorBox box(glm::vec4(0.6f, 0.2f, 0.3f, 1.0f), glm::vec3(0.3f));
+	box.init();
+	box.translate(glm::vec3(2.0f, 0, 1.0f));
+
+	ColorSphere sphere(glm::vec4(0.3f, 0.5f, 0.8f, 1.0f), 1.0f);
 	sphere.init();
 	ShapeKeyListener sphereKeyListener = ShapeKeyListener(window, sphere);
+
+    UniformGrid grid(calculation, 300, 300, -3.0f, -3.0f, 3.0f, 3.0f);
+    grid.init();
+	SurfaceKeyListener surfaceKeyListener = SurfaceKeyListener(window, grid);
+
+	ColorContour contour(grid);
+	contour.init();
+	ContourKeyListener contourKeyListener = ContourKeyListener(window, contour);
 
 	LightBox light;
 	light.init();
@@ -91,7 +123,11 @@ int main(int argc, char **argv)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera.update();
+        grid.update(camera, light);
 		sphere.update(camera, light);
+		contour.update(camera, light);
+		texBox.update(camera, light);
+		box.update(camera, light);
 		light.update(camera);
 
 		glFlush();

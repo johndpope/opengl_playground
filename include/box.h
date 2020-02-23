@@ -22,9 +22,9 @@ protected:
 
 	virtual void initBox(const GLuint& vao, const GLuint& vbo) = 0;
 	virtual void updateBox(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light) = 0;
-	virtual void generateCustomBox(float vertices[396], glm::vec3& size);
+	virtual void generateCustomBox(float vertices[432], glm::vec3& size);
 
-	void generateBox(float vertices[396], glm::vec3& size, glm::vec3* color = nullptr);
+	void generateBox(float vertices[432], glm::vec3& size, glm::vec4* color = nullptr);
 
 private:
 	void initShape(const GLuint& vao, const GLuint& vbo);
@@ -36,30 +36,30 @@ private:
 class BasicColorBox : public Box
 {
 public:
-	BasicColorBox(const glm::vec3 color, const glm::vec3& size);
+	BasicColorBox(const glm::vec4 color, const glm::vec3& size);
 	BasicColorBox(const glm::vec3& size);
 
 private:
-	void generateCustomBox(float vertices[396], glm::vec3& size);
+	void generateCustomBox(float vertices[432], glm::vec3& size);
 	void initBox(const GLuint& vao, const GLuint& vbo);
 	void updateBox(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light);
 
-	glm::vec3 m_color;
+	glm::vec4 m_color;
 };
 
 class ColorBox : public Box
 {
 public:
-	ColorBox(const glm::vec3 color, glm::vec3 size);
+	ColorBox(const glm::vec4 color, glm::vec3 size);
 	ColorBox(const Material material, glm::vec3 size);
 
 private:
-	void generateCustomBox(float vertices[396], glm::vec3& size);
+	void generateCustomBox(float vertices[432], glm::vec3& size);
 	void initBox(const GLuint& vao, const GLuint& vbo);
 	void updateBox(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light);
 
 	Material m_material;
-	glm::vec3 m_color;
+	glm::vec4 m_color;
 };
 
 class MultiTextureBox : public Box

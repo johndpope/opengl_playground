@@ -18,13 +18,13 @@ public:
 	float getIsoValue() { return m_isoValue; }
 
 protected:
-	virtual glm::vec3& getColor(float isoValue, int corners[4]) = 0;
+	virtual glm::vec4& getColor(float isoValue, int corners[4]) = 0;
 
 private:
     void marchingSquares(float isoValue, std::vector<float>& data);
 	void initSurface(const GLuint& vao, const GLuint& vbo) { }
 	void updateSurface(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light);
-    int updateCell(float isoValue, int corners[4], float* buffer, glm::vec3& color);
+    int updateCell(float isoValue, int corners[4], float* buffer, glm::vec4& color);
 
     float m_isoValue;
     float m_prevIsoValue;
@@ -37,10 +37,10 @@ private:
 class ColorContour : public Contour
 {
 public:
-	ColorContour(Grid& grid, const glm::vec3& color = glm::vec3(0, 0, 1.0f));
+	ColorContour(Grid& grid, const glm::vec4& color = glm::vec4(0, 0, 1.0f, 1.0f));
 
 private:
-	glm::vec3& getColor(float isoValue, int corners[4]);
+	glm::vec4& getColor(float isoValue, int corners[4]);
 
-	glm::vec3 m_color;
+	glm::vec4 m_color;
 };

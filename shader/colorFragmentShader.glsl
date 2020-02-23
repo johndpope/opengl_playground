@@ -11,7 +11,7 @@ uniform mat4 mModelView;
 smooth in vec3 vEyeSpaceNormal;
 smooth in vec3 vEyeSpacePosition;
 smooth in vec3 vEyeSpaceLightPosition;
-smooth in vec3 vFragColor;
+smooth in vec4 vFragColor;
 
 out vec4 vOutColor;
 
@@ -23,9 +23,9 @@ void main()
 	float diff = max(0, dot(n, l)); // Percentage of ray perpendicular to surface
 	float spec = pow(max(0, dot(normalize(-vEyeSpacePosition), r)), fShininess); // Percentage of reflection in camera
 
-	vec3 vAmbient  = vAmbientColor * vFragColor;
-	vec3 vDiffuse  = vDiffuseColor * diff * vFragColor;
-	vec3 vSpecular = vSpecularColor * spec * vFragColor;
+	vec3 vAmbient  = vAmbientColor * vFragColor.xyz;
+	vec3 vDiffuse  = vDiffuseColor * diff * vFragColor.xyz;
+	vec3 vSpecular = vSpecularColor * spec * vFragColor.xyz;
 
-	vOutColor = vec4(vAmbient + vDiffuse + vSpecular, 1.0);
+	vOutColor = vec4(vAmbient + vDiffuse + vSpecular, vFragColor.a);
 }

@@ -51,13 +51,7 @@
     <ClInclude Include="include\grid.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\rectilinear_grid.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\scalar_attributes.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\uniform_grid.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\surface.h">
@@ -115,13 +109,7 @@
     <ClCompile Include="source\light.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="source\rectilinear_grid.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="source\scalar_attributes.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\uniform_grid.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="source\contour.cpp">

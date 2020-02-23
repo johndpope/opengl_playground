@@ -5,7 +5,7 @@
 class LightBox : public Light
 {
 public:
-	LightBox(const glm::vec3& color);
+	LightBox(const glm::vec4& color);
 	LightBox();
 	~LightBox();
 

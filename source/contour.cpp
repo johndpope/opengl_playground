@@ -45,7 +45,7 @@ Contour::Contour(Grid& grid, ShaderBase* contourShader)
 void Contour::marchingSquares(float isoValue, std::vector<float>& data)
 {
     data.clear();
-    data.resize(m_grid.numCells() * 15 * 6);
+    data.resize(m_grid.numCells() * 15 * 7);
 
     int numCells = m_grid.numCells();
     int offset = 0;
@@ -53,7 +53,7 @@ void Contour::marchingSquares(float isoValue, std::vector<float>& data)
     {
         int corners[4];
         m_grid.getCell(i, corners);
-        glm::vec3 color = this->getColor(isoValue, corners);
+        glm::vec4 color = this->getColor(isoValue, corners);
         offset += this->updateCell(isoValue, corners, &data[offset], color);
     }
 
@@ -66,18 +66,18 @@ void Contour::updateSurface(const float& totalTime, const float& frameTime, cons
     {
         marchingSquares(m_isoValue, m_vertices);
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * m_vertices.size(), m_vertices.data(), GL_STATIC_DRAW);
-        m_shader->setBufferPosition(6, 0);
-        m_shader->setBufferColor(6, 3);
+        m_shader->setBufferPosition(7, 0);
+        m_shader->setBufferColor(7, 3);
 
         m_prevIsoValue = m_isoValue;
     }
 
     glm::mat4 modelViewProj = camera.projection() * camera.pose() * this->pose();
     m_shader->setModelViewProjection(modelViewProj);
-    glDrawArrays(GL_LINES, 0, m_vertices.size() / 6);
+    glDrawArrays(GL_LINES, 0, m_vertices.size() / 7);
 }
 
-int Contour::updateCell(float isoValue, int corners[4], float* buffer, glm::vec3& color)
+int Contour::updateCell(float isoValue, int corners[4], float* buffer, glm::vec4& color)
 {
     float zOffset = 0.005f * (m_grid.pointScalars().getMax() - m_grid.pointScalars().getMin());
 
@@ -166,16 +166,17 @@ int Contour::updateCell(float isoValue, int corners[4], float* buffer, glm::vec3
         buffer[bufferOffset++] = color.r;
         buffer[bufferOffset++] = color.g;
         buffer[bufferOffset++] = color.b;
+		buffer[bufferOffset++] = color.a;
     }
 
     return bufferOffset;
 }
 
-ColorContour::ColorContour(Grid& grid, const glm::vec3& color)
+ColorContour::ColorContour(Grid& grid, const glm::vec4& color)
     : Contour(grid, new BasicColorShader()),
-        m_color(color) { }
+      m_color(color) { }
 
-glm::vec3& ColorContour::getColor(float isoValue, int corners[4])
+glm::vec4& ColorContour::getColor(float isoValue, int corners[4])
 {
     return m_color;
 }
