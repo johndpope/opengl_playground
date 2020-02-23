@@ -6,6 +6,7 @@
 #include <contour.h>
 #include <light_shape.h>
 #include <key_listener.h>
+#include <sphere.h>
 #include <uniform_grid.h>
 
 const GLuint SCR_WIDTH = 1200;
@@ -65,27 +66,13 @@ GLFWwindow* initWindow()
 	return window;
 }
 
-float calculation1(float x, float y)
-{
-    return std::exp(-(x*x + y*y));
-}
-
-float calculation2(float x, float y)
-{
-	return sinf(1.0f / (x*x + y * y));
-}
-
 int main(int argc, char **argv)
 {
 	GLFWwindow* window = initWindow();
 
-    UniformGrid grid(calculation1, 300, 300, -3.0f, -3.0f, 3.0f, 3.0f);
-    grid.init();
-	SurfaceKeyListener surfaceKeyListener = SurfaceKeyListener(window, grid);
-
-	ColorContour contour(grid);
-	contour.init();
-	ContourKeyListener contourKeyListener = ContourKeyListener(window, contour);
+	ColorSphere sphere(glm::vec3(0.3f, 0.5f, 0.8f), 1.0f);
+	sphere.init();
+	ShapeKeyListener shapeKeyListener = ShapeKeyListener(window, sphere);
 
 	LightBox light;
 	light.init();
@@ -104,8 +91,7 @@ int main(int argc, char **argv)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera.update();
-		grid.update(camera, light);
-		contour.update(camera, light);
+		sphere.update(camera, light);
 		light.update(camera);
 
 		glFlush();

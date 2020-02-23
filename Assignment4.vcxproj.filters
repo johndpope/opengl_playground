@@ -66,6 +66,9 @@
     <ClInclude Include="include\contour.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\sphere.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\colorFragmentShader.glsl">
