@@ -48,10 +48,10 @@ protected:
         vertices.resize(9 * 3 * glm::pow(4.0f, (m_levels + 1)));
 
         // Generate vertices
-        offset += divide_triangle(&vertices[offset], v[0], v[1], v[2], m_levels, m_levels, color);
-        offset += divide_triangle(&vertices[offset], v[3], v[2], v[1], m_levels, m_levels, color);
-        offset += divide_triangle(&vertices[offset], v[0], v[3], v[1], m_levels, m_levels, color);
-        offset += divide_triangle(&vertices[offset], v[0], v[2], v[3], m_levels, m_levels, color);
+        offset += divide_triangle(&vertices[offset], v[0], v[1], v[2], m_levels, m_levels, radius, color);
+        offset += divide_triangle(&vertices[offset], v[3], v[2], v[1], m_levels, m_levels, radius, color);
+        offset += divide_triangle(&vertices[offset], v[0], v[3], v[1], m_levels, m_levels, radius, color);
+        offset += divide_triangle(&vertices[offset], v[0], v[2], v[3], m_levels, m_levels, radius, color);
     }
 
 protected:
@@ -64,6 +64,7 @@ private:
         glm::vec3 b,
         glm::vec3 c,
         int nDepth,
+        float radius,
         glm::vec3* color
     )
     {
@@ -77,9 +78,9 @@ private:
         for (const glm::vec3& point : points)
         {
             // Vertex coordinate
-            vertices[offset++] = point.x;
-            vertices[offset++] = point.y;
-            vertices[offset++] = point.z;
+            vertices[offset++] = radius * point.x;
+            vertices[offset++] = radius * point.y;
+            vertices[offset++] = radius * point.z;
 
             // Vertex normal
             vertices[offset++] = n.x;
@@ -102,6 +103,7 @@ private:
         glm::vec3 c,
         int n,
         int depth,
+        float radius,
         glm::vec3* color
     )
     {
@@ -112,14 +114,14 @@ private:
             glm::vec3 v1 = glm::normalize(a + b);
             glm::vec3 v2 = glm::normalize(a + c);
             glm::vec3 v3 = glm::normalize(b + c);
-            offset += divide_triangle(&vertices[offset], a, v2, v1, n - 1, depth, color);
-            offset += divide_triangle(&vertices[offset], c, v3, v2, n - 1, depth, color);
-            offset += divide_triangle(&vertices[offset], b, v1, v3, n - 1, depth, color);
-            offset += divide_triangle(&vertices[offset], v1, v2, v3, n - 1, depth, color);
+            offset += divide_triangle(&vertices[offset], a, v2, v1, n - 1, depth, radius, color);
+            offset += divide_triangle(&vertices[offset], c, v3, v2, n - 1, depth, radius, color);
+            offset += divide_triangle(&vertices[offset], b, v1, v3, n - 1, depth, radius, color);
+            offset += divide_triangle(&vertices[offset], v1, v2, v3, n - 1, depth, radius, color);
         }
         else
         {
-            offset += triangle(vertices, a, b, c, depth, color);
+            offset += triangle(vertices, a, b, c, depth, radius, color);
         }
 
         return offset;
