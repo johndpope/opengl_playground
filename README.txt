@@ -16,4 +16,4 @@ I : Decrease the iso value
 
 For convenience I have attached the exe
 
-Link to video: https://photos.app.goo.gl/RxT1BHbCJBihDDJX6
+Link to video: https://photos.app.goo.gl/zEYMdamfck8ZV9q1A
