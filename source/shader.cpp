@@ -48,6 +48,11 @@ void ShaderBase::setBufferColor(int stride, int offset)
 	this->setBufferParameter("vColor", 4, stride, offset);
 }
 
+void ShaderBase::setBufferColorNorm(int stride, int offset)
+{
+	this->setBufferParameter("fColorNorm", 1, stride, offset);
+}
+
 void ShaderBase::setBufferPosition(int stride, int offset)
 {
 	this->setBufferParameter("vPosition", 3, stride, offset);

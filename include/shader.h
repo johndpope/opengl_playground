@@ -13,6 +13,7 @@ public:
 
 	void setAmbientColor(const glm::vec3& ambientColor);
 	void setBufferColor(int stride, int offset);
+    void setBufferColorNorm(int stride, int offset);
 	void setBufferNormal(int stride, int offset);
 	void setBufferPosition(int stride, int offset);
 	void setBufferTextureCoord(int stride, int offset);
@@ -24,7 +25,7 @@ public:
 	void setShininess(const float shininess);
 	void setSpecularColor(const glm::vec3& specularColor);
 	void setView(const glm::mat4& view);
-	
+
 protected:
 	void setBufferParameter(std::string name, int numAttribs, int stride, int offset);
 
@@ -43,6 +44,13 @@ class ColorShader : public ShaderBase
 public:
 	ColorShader() :
 		ShaderBase("shader\\colorVertexShader.glsl", "shader\\colorFragmentShader.glsl") { }
+};
+
+class ColorMapShader : public ShaderBase
+{
+public:
+	ColorMapShader() :
+		ShaderBase("shader\\colorMapVertexShader.glsl", "shader\\colorMapFragmentShader.glsl") { }
 };
 
 class TextureShader : public ShaderBase

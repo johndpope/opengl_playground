@@ -1,4 +1,4 @@
-#include <glew.h>
+﻿#include <glew.h>
 #include <glfw3.h>
 #include <glm.hpp>
 #include <box.h>
@@ -8,6 +8,7 @@
 #include <key_listener.h>
 #include <sphere.h>
 #include <grid.h>
+#include <algorithm>
 
 const GLuint SCR_WIDTH = 1200;
 const GLuint SCR_HEIGHT = 1200;
@@ -73,29 +74,36 @@ float calculation(float x, float y)
 	return (sinf(10 * x) * sinf(10 * y)) / (100 * x * y);
 }
 
-glm::vec4 color(float value, float min, float max)
+glm::vec4 color(float value)
 {
-	float norm = (value - max) / (min - max);
+    float d = value * 6;
+    d = d < 0.8f ? 0.8f : (d > 5.2f ? 5.2f : d);
 
-    return glm::vec4(glm::vec3(1 - norm), 1.0f);
+	float r = std::fmax(0, (3 - fabs(d - 4) - fabs(d - 5)) / 12.0f);
+	float g = std::fmax(0, (4 - fabs(d - 2) - fabs(d - 4)) / 12.0f);
+	float b = std::fmax(0, (3 - fabs(d - 1) - fabs(d - 2)) / 12.0f);
+
+	glm::vec3 rgb = glm::normalize(glm::vec3(r, g, b));
+
+	return glm::vec4(rgb, 1.0f);
 }
 
 int main(int argc, char **argv)
 {
 	GLFWwindow* window = initWindow();
 
-	ColorBox box(glm::vec4(0.6f, 0.2f, 0.3f, 0.2f), glm::vec3(2.0f));
+	ColorBox box(glm::vec4(0.6f, 0.2f, 0.3f, 0.2f), glm::vec3(4.0f));
 	box.init();
 	ShapeKeyListener boxKeyListener = ShapeKeyListener(window, box);
 
-	ColorSphere sphere(glm::vec4(0.3f, 0.5f, 0.8f, 0.4f), 1.0f);
+	ColorSphere sphere(glm::vec4(0.3f, 0.5f, 0.8f, 0.4f), 1.5f);
 	sphere.init();
 
-    UniformGrid grid(calculation, 300, 300, -3.0f, -3.0f, 3.0f, 3.0f, color);
+    UniformGrid grid(calculation, 300, 300, -2.0f, -2.0f, 2.0f, 2.0f, color);
     grid.init();
 	SurfaceKeyListener surfaceKeyListener = SurfaceKeyListener(window, grid);
 
-	ColorContour contour(grid);
+	ColorContour contour(grid, glm::vec4(0, 0, 0, 1.0f));
 	contour.init();
 	ContourKeyListener contourKeyListener = ContourKeyListener(window, contour);
 
@@ -112,15 +120,15 @@ int main(int argc, char **argv)
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
-		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+		glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera.update();
         grid.update(camera, light);
 		contour.update(camera, light);
 		sphere.update(camera, light);
-		box.update(camera, light);
 		light.update(camera);
+		box.update(camera, light);
 
 		glFlush();
 		glfwSwapBuffers(window);

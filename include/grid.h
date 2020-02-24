@@ -8,16 +8,15 @@
 #include <scalar_attributes.h>
 
 #define VERTICES_PER_CELL 6
+#define COLOR_MAP_RESOLUTION 32
 
 typedef std::function<float(float, float)> Calculate2DFunction;
-typedef std::function<glm::vec4(float, float, float)> ColorFunction;
+typedef std::function<glm::vec4(float)> ColorFunction;
 
 struct GridVertexAttribute
 {
     glm::vec3 position;
-    glm::vec2 texture;
-    glm::vec3 normal;
-    glm::vec4 color;
+    float colorNorm;
 };
 
 class Grid : public Surface
@@ -38,17 +37,16 @@ public:
 protected:
 	Grid(Calculate2DFunction calcFunction, ShaderBase* shader, ColorFunction colorFunction = nullptr);
 
-	virtual void initGrid(const GLuint& vao, const GLuint& vbo) = 0;
-	virtual void updateGrid(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light) = 0;
-
     Calculate2DFunction m_calcFunction;
     ColorFunction m_colorFunction;
     Material m_material;
     glm::vec4 m_defaultColor;
     int m_numVertices;
+    GLuint m_colorTexture;
 
 private:
-    glm::vec4& defaultColor(float value, float min, float max) { return m_defaultColor; }
+    glm::vec4& defaultColor(float value) { return m_defaultColor; }
+	inline float computeNorm(float value, float min, float max) { return ((value - min) / (max - min)); }
 
     void initSurface(const GLuint& vao, const GLuint& vbo);
 	void updateSurface(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light);
@@ -88,9 +86,6 @@ protected:
 	float m_minY; // Minimal y coordinate values in this grid
 
 private:
-	void initGrid(const GLuint& vao, const GLuint& vbo);
-	void updateGrid(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light);
-
 	float m_cellWidth; // Cell width in this grid
 	float m_cellHeight; // Cell height in this grid
 };
