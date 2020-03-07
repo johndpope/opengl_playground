@@ -21,7 +21,9 @@
   <ItemGroup>
     <ClInclude Include="include\box.h" />
     <ClInclude Include="include\camera.h" />
+    <ClInclude Include="include\codebase.h" />
     <ClInclude Include="include\contour.h" />
+    <ClInclude Include="include\ddsbase.h" />
     <ClInclude Include="include\grid.h" />
     <ClInclude Include="include\key_listener.h" />
     <ClInclude Include="include\light.h" />
@@ -49,6 +51,7 @@
     <ClCompile Include="source\box.cpp" />
     <ClCompile Include="source\camera.cpp" />
     <ClCompile Include="source\contour.cpp" />
+    <ClCompile Include="source\ddsbase.cpp" />
     <ClCompile Include="source\grid.cpp" />
     <ClCompile Include="source\key_listener.cpp" />
     <ClCompile Include="source\light.cpp" />
@@ -118,7 +121,11 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)\shared\glfw\include\GLFW;$(SolutionDir)\shared;$(SolutionDir)\shared\GL\include;$(SolutionDir)\shared\glm;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -127,6 +134,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)\shared\glfw\include\GLFW;$(SolutionDir)\shared;$(SolutionDir)\shared\GL\include;$(SolutionDir)\shared\glm;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\shared\GL\lib;$(SolutionDir)\shared\GL\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -144,10 +152,12 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)\shared\glfw\include\GLFW;$(SolutionDir)\shared;$(SolutionDir)\shared\GL\include;$(SolutionDir)\shared\glm;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -159,6 +169,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)\shared\glfw\include\GLFW;$(SolutionDir)\shared;$(SolutionDir)\shared\GL\include;$(SolutionDir)\shared\glm;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

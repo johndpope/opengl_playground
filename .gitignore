@@ -357,3 +357,9 @@ MigrationBackup/
 
 # Screenshots
 screenshots/
+
+# Docs
+docs/
+
+# Datasets
+datasets/

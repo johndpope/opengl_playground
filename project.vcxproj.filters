@@ -63,6 +63,12 @@
     <ClInclude Include="include\sphere.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\codebase.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ddsbase.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\colorFragmentShader.glsl">
@@ -122,6 +128,9 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="source\sphere.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ddsbase.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
