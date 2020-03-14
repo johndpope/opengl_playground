@@ -1,11 +1,11 @@
 #pragma once
 #include <contour.h>
 
-Contour::Contour(Grid& grid, ShaderBase* contourShader)
-    : Surface(contourShader),
-        m_grid(grid),
-        m_isoValue(0.5f * (grid.pointScalars().getMax() - grid.pointScalars().getMin())),
-        m_prevIsoValue(-1.0f)
+Contour::Contour(Grid& grid, ShaderBase* shader)
+    : m_grid(grid),
+      m_isoValue(0.5f * (grid.pointScalars()->getMax() - grid.pointScalars()->getMin())),
+      m_prevIsoValue(-1.0f),
+      m_shader(shader)
 {
     m_sequenceMap[0] = { };
     m_sequenceMap[1] = { 7, 3 };
@@ -42,6 +42,12 @@ Contour::Contour(Grid& grid, ShaderBase* contourShader)
     m_lengthMap[15] = 0;
 }
 
+void Contour::update(const Camera& camera)
+{
+    m_camera = &camera;
+    UpdatableObject::update();
+}
+
 void Contour::marchingSquares(float isoValue, std::vector<ContourVertexAttribute>& data)
 {
     data.resize(m_grid.numCells() * VERTICES_PER_EDGE * MAX_EDGES_PER_CELL);
@@ -59,7 +65,7 @@ void Contour::marchingSquares(float isoValue, std::vector<ContourVertexAttribute
     data.resize(offset);
 }
 
-void Contour::updateSurface(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light)
+void Contour::updateMovable(const float& totalTime, const float& frameTime)
 {
     if (m_isoValue != m_prevIsoValue)
     {
@@ -74,21 +80,21 @@ void Contour::updateSurface(const float& totalTime, const float& frameTime, cons
         m_prevIsoValue = m_isoValue;
     }
 
-    glm::mat4 modelViewProj = camera.projection() * camera.pose() * this->pose();
+    glm::mat4 modelViewProj = m_camera->projection() * m_camera->pose() * this->pose();
     m_shader->setModelViewProjection(modelViewProj);
     glDrawArrays(GL_LINES, 0, m_numVertices);
 }
 
 int Contour::updateCell(float isoValue, int corners[CORNERS_PER_CELL], ContourVertexAttribute* buffer, glm::vec4& color)
 {
-    float zOffset = 0.005f * (m_grid.pointScalars().getMax() - m_grid.pointScalars().getMin());
+    float zOffset = 0.005f * (m_grid.pointScalars()->getMax() - m_grid.pointScalars()->getMin());
 
     int code = 0;
     float weight[CORNERS_PER_CELL];
     for (int j = 0; j < CORNERS_PER_CELL; j++)
     {
-        float value1 = m_grid.pointScalars().getC0Scalar(corners[j]);
-        float value2 = m_grid.pointScalars().getC0Scalar(corners[(j + 1) % 4]);
+        float value1 = m_grid.pointScalars()->getC0Scalar(corners[j]);
+        float value2 = m_grid.pointScalars()->getC0Scalar(corners[(j + 1) % 4]);
 
         code |= (int)(value1 > isoValue) << (3 - j);
 
@@ -128,30 +134,30 @@ int Contour::updateCell(float isoValue, int corners[CORNERS_PER_CELL], ContourVe
     m_grid.getPoint(corners[2], v8);
     m_grid.getPoint(corners[3], v6);
 
-    v0[2] = m_grid.function(v0[0], v0[1]);
-    v2[2] = m_grid.function(v2[0], v2[1]);
-    v6[2] = m_grid.function(v6[0], v6[1]);
-    v8[2] = m_grid.function(v8[0], v8[1]);
+    v0[2] = m_grid.evaluate(v0[0], v0[1]);
+    v2[2] = m_grid.evaluate(v2[0], v2[1]);
+    v6[2] = m_grid.evaluate(v6[0], v6[1]);
+    v8[2] = m_grid.evaluate(v8[0], v8[1]);
 
     v1[0] = v0[0] + (v2[0] - v0[0]) * weight[0];
     v1[1] = v0[1] + (v2[1] - v0[1]) * weight[0];
-    v1[2] = m_grid.function(v1[0], v1[1]);
+    v1[2] = m_grid.evaluate(v1[0], v1[1]);
 
     v5[0] = v2[0] + (v8[0] - v2[0]) * weight[1];
     v5[1] = v2[1] + (v8[1] - v2[1]) * weight[1];
-    v5[2] = m_grid.function(v5[0], v5[1]);
+    v5[2] = m_grid.evaluate(v5[0], v5[1]);
 
     v7[0] = v6[0] + (v8[0] - v6[0]) * (1.0f - weight[2]);
     v7[1] = v6[1] + (v8[1] - v6[1]) * (1.0f - weight[2]);
-    v7[2] = m_grid.function(v7[0], v7[1]);
+    v7[2] = m_grid.evaluate(v7[0], v7[1]);
 
     v3[0] = v0[0] + (v6[0] - v0[0]) * (1.0f - weight[3]);
     v3[1] = v0[1] + (v6[1] - v0[1]) * (1.0f - weight[3]);
-    v3[2] = m_grid.function(v3[0], v3[1]);
+    v3[2] = m_grid.evaluate(v3[0], v3[1]);
 
     v4[0] = (v1[0] + v5[0] + v7[0] + v3[0]) / 4.0f;
     v4[1] = (v1[1] + v5[1] + v7[1] + v3[1]) / 4.0f;
-    v4[2] = m_grid.function(v4[0], v4[1]);
+    v4[2] = m_grid.evaluate(v4[0], v4[1]);
 
     std::vector<float*> v = { v0, v1, v2, v3, v4, v5, v6, v7, v8 };
 

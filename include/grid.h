@@ -1,108 +1,60 @@
 #pragma once
 #include <functional>
-#include <vector>
 #include <glm.hpp>
-#include <material.h>
-#include <surface.h>
-#include <shader.h>
 #include <scalar_attributes.h>
 
-#define VERTICES_PER_CELL 6
-#define COLOR_MAP_RESOLUTION 32
-
 typedef std::function<float(float, float)> Calculate2DFunction;
-typedef std::function<glm::vec4(float)> ColorFunction;
 
-struct GridVertexAttribute
-{
-    glm::vec3 position;
-    float colorNorm;
-};
-
-class Grid : public Surface
+class Grid
 {
 public:
-	virtual ~Grid() = default;
+	virtual ~Grid() { if (m_scalars != nullptr) { delete m_scalars; } }
 
 	virtual int	numPoints()	= 0;
 	virtual int numCells() = 0;
 	virtual void getPoint(int, float*) = 0;
 	virtual int getCell(int, int*) = 0;
 	virtual int findCell(float*) = 0;
-	virtual ScalarAttributes& pointScalars() = 0;
-    float function(float x, float y) { return m_calcFunction(x, y); }
+    virtual float evaluate(float x, float y, float z = 0) = 0;
 
-    void triangulate(std::vector<GridVertexAttribute>& data);
+	virtual ScalarAttributes* pointScalars() { return m_scalars; }
 
 protected:
-	Grid(Calculate2DFunction calcFunction, ShaderBase* shader, ColorFunction colorFunction = nullptr);
+    Grid() = default;
 
-    Calculate2DFunction m_calcFunction;
-    ColorFunction m_colorFunction;
-    Material m_material;
-    glm::vec4 m_defaultColor;
-    int m_numVertices;
-    GLuint m_colorTexture;
+    virtual ScalarAttributes* initScalars() = 0;
 
-private:
-    glm::vec4& defaultColor(float value) { return m_defaultColor; }
-	inline float computeNorm(float value, float min, float max) { return ((value - min) / (max - min)); }
-
-    void initSurface(const GLuint& vao, const GLuint& vbo);
-	void updateSurface(const float& totalTime, const float& frameTime, const Camera& camera, const Light& light);
+    ScalarAttributes* m_scalars;
 };
 
-class UniformGrid : public Grid
+class Grid2D : public Grid
 {
 public:
-	UniformGrid(
-        Calculate2DFunction function,
+	Grid2D(
+        Calculate2DFunction calcFunction,
         int numPointsX,
         int numPointsY,
         float minX,
         float minY,
         float maxX,
-        float maxY,
-        ColorFunction colorFunction = nullptr
-    );
-
-	~UniformGrid() = default;
-
-	int	numPoints() { return m_numPointsX * m_numPointsY; }
-	int	numCells() { return (m_numPointsX - 1) * (m_numPointsY - 1); }
-	int	getDimension1() { return m_numPointsX; }
-	int getDimension2() { return m_numPointsY; }
-	ScalarAttributes& pointScalars() { return m_scalars; }
+        float maxY);
 
 	int	findCell(float*);
 	int	getCell(int i, int* c);
     void getPoint(int i, float* p);
 
-protected:
-	ScalarAttributes m_scalars;
-	int	m_numPointsX; // Number of points along the x-axis
-	int m_numPointsY; // Number of points along the y−axis
-	float m_minX; // Minimal x coordinate values in this grid
-	float m_minY; // Minimal y coordinate values in this grid
+	int	numPoints() { return m_numPointsX * m_numPointsY; }
+	int	numCells() { return (m_numPointsX - 1) * (m_numPointsY - 1); }
+    float evaluate(float x, float y, float z = 0) { return m_calcFunction(x, y); }
 
 private:
-	float m_cellWidth; // Cell width in this grid
-	float m_cellHeight; // Cell height in this grid
-};
+    ScalarAttributes* initScalars();
 
-class RectilinearGrid : public UniformGrid
-{
-public:
-	RectilinearGrid(
-        Calculate2DFunction function,
-        std::vector<float>& dimsX,
-        std::vector<float>& dimsY,
-        ColorFunction colorFunction = nullptr
-    );
-
-	void getPoint(int i, float* p);
-
-private:
-	std::vector<float> m_dX; // Sampling positions along the X axis
-	std::vector<float> m_dY; // Sampling positions along the Y axis
+    Calculate2DFunction m_calcFunction;
+	float 				m_cellHeight; 	// Cell height in this grid
+	float 				m_cellWidth; 	// Cell width in this grid
+	float 				m_minX; 		// Minimal x coordinate values in this grid
+	float 				m_minY; 		// Minimal y coordinate values in this grid
+	int					m_numPointsX; 	// Number of points along the x-axis
+	int 				m_numPointsY; 	// Number of points along the y−axis
 };

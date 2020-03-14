@@ -1,4 +1,4 @@
-﻿#include <glew.h>
+#include <glew.h>
 #include <glfw3.h>
 #include <glm.hpp>
 #include <box.h>
@@ -8,6 +8,7 @@
 #include <key_listener.h>
 #include <sphere.h>
 #include <grid.h>
+#include <ddsbase.h>
 #include <algorithm>
 
 const GLuint SCR_WIDTH = 1200;
@@ -79,9 +80,9 @@ glm::vec4 color(float value)
     float d = value * 6;
     d = d < 0.8f ? 0.8f : (d > 5.2f ? 5.2f : d);
 
-	float r = std::fmax(0, (3 - fabs(d - 4) - fabs(d - 5)) / 12.0f);
-	float g = std::fmax(0, (4 - fabs(d - 2) - fabs(d - 4)) / 12.0f);
-	float b = std::fmax(0, (3 - fabs(d - 1) - fabs(d - 2)) / 12.0f);
+	float r = fmax(0, (3 - fabs(d - 4) - fabs(d - 5)) / 12.0f);
+	float g = fmax(0, (4 - fabs(d - 2) - fabs(d - 4)) / 12.0f);
+	float b = fmax(0, (3 - fabs(d - 1) - fabs(d - 2)) / 12.0f);
 
 	glm::vec3 rgb = glm::normalize(glm::vec3(r, g, b));
 
@@ -99,11 +100,12 @@ int main(int argc, char **argv)
 	ColorSphere sphere(glm::vec4(0.3f, 0.5f, 0.8f, 0.4f), 1.5f);
 	sphere.init();
 
-    UniformGrid grid(calculation, 300, 300, -2.0f, -2.0f, 2.0f, 2.0f, color);
-    grid.init();
-	SurfaceKeyListener surfaceKeyListener = SurfaceKeyListener(window, grid);
+    Grid2D grid2D(calculation, 300, 300, -2.0f, -2.0f, 2.0f, 2.0f);
+	Surface surface(grid2D, color);
+	surface.init();
+	SurfaceKeyListener surfaceKeyListener = SurfaceKeyListener(window, surface);
 
-	ColorContour contour(grid, glm::vec4(0, 0, 0, 1.0f));
+	ColorContour contour(grid2D, glm::vec4(0, 0, 0, 1.0f));
 	contour.init();
 	ContourKeyListener contourKeyListener = ContourKeyListener(window, contour);
 
@@ -124,8 +126,8 @@ int main(int argc, char **argv)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera.update();
-        grid.update(camera, light);
-		contour.update(camera, light);
+        surface.update(camera);
+		contour.update(camera);
 		sphere.update(camera, light);
 		light.update(camera);
 		box.update(camera, light);
