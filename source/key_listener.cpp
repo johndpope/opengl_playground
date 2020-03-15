@@ -203,3 +203,33 @@ void ContourKeyListener::isoDown()
     float isoValue = m_contour.getIsoValue() - m_iso;
     m_contour.setIsoValue(isoValue);
 }
+
+MeshKeyListener::MeshKeyListener(GLFWwindow* window, Mesh& mesh, float rotate, float scale, float iso)
+    : MovableKeyListener(window, mesh, rotate, scale),
+      m_iso(iso),
+      m_mesh(mesh)
+{
+    KeyListener::registerCallback(window, GLFW_KEY_U, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&MeshKeyListener::isoUp, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_U, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&MeshKeyListener::isoUp, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_I, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&MeshKeyListener::isoDown, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_I, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&MeshKeyListener::isoDown, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_F, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&MeshKeyListener::wireframe, this)));
+}
+
+void MeshKeyListener::isoUp()
+{
+    float isoValue = m_mesh.getIsoValue() + m_iso;
+    m_mesh.setIsoValue(isoValue);
+}
+
+void MeshKeyListener::isoDown()
+{
+    float isoValue = m_mesh.getIsoValue() - m_iso;
+    m_mesh.setIsoValue(isoValue);
+}
+
+void MeshKeyListener::wireframe()
+{
+    m_wireframe = !m_wireframe;
+    m_mesh.wireframe(m_wireframe);
+}

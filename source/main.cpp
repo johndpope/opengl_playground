@@ -1,4 +1,4 @@
-#include <glew.h>
+﻿#include <glew.h>
 #include <glfw3.h>
 #include <glm.hpp>
 #include <box.h>
@@ -70,9 +70,14 @@ GLFWwindow* initWindow()
 	return window;
 }
 
-float calculation(float x, float y)
+float calculation2D(float x, float y)
 {
 	return (sinf(10 * x) * sinf(10 * y)) / (100 * x * y);
+}
+
+float calculation3D(float x, float y, float z)
+{
+	return sqrt(x * x + y * y + z * z);
 }
 
 glm::vec4 color(float value)
@@ -86,28 +91,45 @@ glm::vec4 color(float value)
 
 	glm::vec3 rgb = glm::normalize(glm::vec3(r, g, b));
 
-	return glm::vec4(rgb, 1.0f);
+	return glm::vec4(rgb, 0.25f);
 }
 
 int main(int argc, char **argv)
 {
+    unsigned char *volume;
+    unsigned int components;
+    unsigned int depth;
+    unsigned int width;
+    unsigned int height;
+
+    float scalex;
+    float scaley;
+    float scalez;
+
+    volume = readPVMvolume(
+        "datasets\\Bonsai2-HI.pvm",
+        &width,
+        &height,
+        &depth,
+        &components,
+        &scalex,
+        &scaley,
+        &scalez,
+        NULL, NULL, NULL, NULL
+    );
+
+    free(volume);
+
 	GLFWwindow* window = initWindow();
 
-	ColorBox box(glm::vec4(0.6f, 0.2f, 0.3f, 0.2f), glm::vec3(4.0f));
-	box.init();
-	ShapeKeyListener boxKeyListener = ShapeKeyListener(window, box);
+    CalculateGrid3D grid3D(calculation3D, 30, 30, 30, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f);
+	Mesh mesh(grid3D, color);
+	mesh.init();
+	MeshKeyListener meshKeyListener = MeshKeyListener(window, mesh);
 
-	ColorSphere sphere(glm::vec4(0.3f, 0.5f, 0.8f, 0.4f), 1.5f);
-	sphere.init();
-
-    Grid2D grid2D(calculation, 300, 300, -2.0f, -2.0f, 2.0f, 2.0f);
-	Surface surface(grid2D, color);
-	surface.init();
-	SurfaceKeyListener surfaceKeyListener = SurfaceKeyListener(window, surface);
-
-	ColorContour contour(grid2D, glm::vec4(0, 0, 0, 1.0f));
-	contour.init();
-	ContourKeyListener contourKeyListener = ContourKeyListener(window, contour);
+	//ColorContour contour(grid3D, glm::vec4(0, 0, 0, 1.0f));
+	//contour.init();
+	//ContourKeyListener contourKeyListener = ContourKeyListener(window, contour);
 
 	LightBox light;
 	light.init();
@@ -126,11 +148,9 @@ int main(int argc, char **argv)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera.update();
-        surface.update(camera);
-		contour.update(camera);
-		sphere.update(camera, light);
+        mesh.update(camera);
+		//contour.update(camera);
 		light.update(camera);
-		box.update(camera, light);
 
 		glFlush();
 		glfwSwapBuffers(window);

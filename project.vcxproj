@@ -29,6 +29,7 @@
     <ClInclude Include="include\light.h" />
     <ClInclude Include="include\light_shape.h" />
     <ClInclude Include="include\material.h" />
+    <ClInclude Include="include\mesh.h" />
     <ClInclude Include="include\movable.h" />
     <ClInclude Include="include\scalar_attributes.h" />
     <ClInclude Include="include\shader.h" />
@@ -57,6 +58,7 @@
     <ClCompile Include="source\light.cpp" />
     <ClCompile Include="source\light_shape.cpp" />
     <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\mesh.cpp" />
     <ClCompile Include="source\movable.cpp" />
     <ClCompile Include="source\scalar_attributes.cpp" />
     <ClCompile Include="source\shader.cpp" />

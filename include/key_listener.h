@@ -10,6 +10,7 @@
 #include <contour.h>
 #include <functional>
 #include <movable.h>
+#include <mesh.h>
 
 class KeyListener
 {
@@ -108,4 +109,20 @@ private:
 
 	Contour& m_contour;
 	float m_iso;
+};
+
+class MeshKeyListener : public MovableKeyListener
+{
+public:
+	MeshKeyListener(GLFWwindow* window, Mesh& mesh, float rotate = 1.0f, float scale = 1.01f, float iso = 0.01f);
+	~MeshKeyListener() = default;
+
+private:
+	void isoUp();
+	void isoDown();
+	void wireframe();
+
+	Mesh& m_mesh;
+	float m_iso;
+	bool m_wireframe;
 };

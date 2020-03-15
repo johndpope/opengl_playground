@@ -50,13 +50,14 @@ void Contour::update(const Camera& camera)
 
 void Contour::marchingSquares(float isoValue, std::vector<ContourVertexAttribute>& data)
 {
-    data.resize(m_grid.numCells() * VERTICES_PER_EDGE * MAX_EDGES_PER_CELL);
-
     int numCells = m_grid.numCells();
+	int corners[CORNERS_PER_CELL];
+
+    data.resize(numCells * VERTICES_PER_EDGE * MAX_EDGES_PER_CELL);
+
     int offset = 0;
     for (int i = 0; i < numCells; i++)
     {
-        int corners[CORNERS_PER_CELL];
         m_grid.getCell(i, corners);
         glm::vec4 color = this->getColor(isoValue, corners);
         offset += this->updateCell(isoValue, corners, &data[offset], color);
@@ -67,6 +68,7 @@ void Contour::marchingSquares(float isoValue, std::vector<ContourVertexAttribute
 
 void Contour::updateMovable(const float& totalTime, const float& frameTime)
 {
+    m_shader->use();
     if (m_isoValue != m_prevIsoValue)
     {
         std::vector<ContourVertexAttribute> vertices;
@@ -94,9 +96,9 @@ int Contour::updateCell(float isoValue, int corners[CORNERS_PER_CELL], ContourVe
     for (int j = 0; j < CORNERS_PER_CELL; j++)
     {
         float value1 = m_grid.pointScalars()->getC0Scalar(corners[j]);
-        float value2 = m_grid.pointScalars()->getC0Scalar(corners[(j + 1) % 4]);
+        float value2 = m_grid.pointScalars()->getC0Scalar(corners[(j + 1) % CORNERS_PER_CELL]);
 
-        code |= (int)(value1 > isoValue) << (3 - j);
+        code |= (int)(value1 > isoValue) << (CORNERS_PER_CELL - 1 - j);
 
         weight[j] = (value1 - isoValue) / (value1 - value2);
     }
