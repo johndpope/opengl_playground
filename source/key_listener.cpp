@@ -209,10 +209,10 @@ MeshKeyListener::MeshKeyListener(GLFWwindow* window, Mesh& mesh, float rotate, f
       m_iso(iso),
       m_mesh(mesh)
 {
-    KeyListener::registerCallback(window, GLFW_KEY_U, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&MeshKeyListener::isoUp, this)));
-    KeyListener::registerCallback(window, GLFW_KEY_U, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&MeshKeyListener::isoUp, this)));
-    KeyListener::registerCallback(window, GLFW_KEY_I, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&MeshKeyListener::isoDown, this)));
-    KeyListener::registerCallback(window, GLFW_KEY_I, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&MeshKeyListener::isoDown, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_N, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&MeshKeyListener::isoUp, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_N, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&MeshKeyListener::isoUp, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_M, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&MeshKeyListener::isoDown, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_M, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&MeshKeyListener::isoDown, this)));
 	KeyListener::registerCallback(window, GLFW_KEY_F, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&MeshKeyListener::wireframe, this)));
 }
 
@@ -229,6 +229,55 @@ void MeshKeyListener::isoDown()
 }
 
 void MeshKeyListener::wireframe()
+{
+    m_wireframe = !m_wireframe;
+    m_mesh.wireframe(m_wireframe);
+}
+
+MeshContourKeyListener::MeshContourKeyListener(GLFWwindow* window, Mesh& mesh, Contour& contour, float rotate, float scale, float iso, float slice)
+    : MovableKeyListener(window, contour, rotate, scale),
+      m_iso(iso),
+	  m_slice(slice),
+      m_mesh(mesh),
+	  m_contour(contour),
+	  m_meshKeyListener(new MovableKeyListener(window, mesh))
+{
+    KeyListener::registerCallback(window, GLFW_KEY_U, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&MeshContourKeyListener::sliceUp, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_U, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&MeshContourKeyListener::sliceUp, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_I, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&MeshContourKeyListener::sliceDown, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_I, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&MeshContourKeyListener::sliceDown, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_N, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&MeshContourKeyListener::isoUp, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_N, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&MeshContourKeyListener::isoUp, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_M, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&MeshContourKeyListener::isoDown, this)));
+    KeyListener::registerCallback(window, GLFW_KEY_M, GLFW_REPEAT, KeyListener::KeyCallbackFunc(std::bind(&MeshContourKeyListener::isoDown, this)));
+	KeyListener::registerCallback(window, GLFW_KEY_F, GLFW_PRESS, KeyListener::KeyCallbackFunc(std::bind(&MeshContourKeyListener::wireframe, this)));
+}
+
+void MeshContourKeyListener::isoUp()
+{
+    float isoValue = m_mesh.getIsoValue() + m_iso;
+    m_mesh.setIsoValue(isoValue);
+	m_contour.setIsoValue(isoValue);
+}
+
+void MeshContourKeyListener::isoDown()
+{
+    float isoValue = m_mesh.getIsoValue() - m_iso;
+    m_mesh.setIsoValue(isoValue);
+	m_contour.setIsoValue(isoValue);
+}
+
+void MeshContourKeyListener::sliceUp()
+{
+	m_contour.incrementHeight(m_slice);
+}
+
+void MeshContourKeyListener::sliceDown()
+{
+	m_contour.incrementHeight(-m_slice);
+}
+
+void MeshContourKeyListener::wireframe()
 {
     m_wireframe = !m_wireframe;
     m_mesh.wireframe(m_wireframe);

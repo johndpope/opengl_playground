@@ -1,9 +1,9 @@
 #pragma once
 #include <contour.h>
+#include <glm\gtx\matrix_decompose.hpp>
 
-Contour::Contour(Grid& grid, ShaderBase* shader)
+Contour::Contour(Grid2D& grid, ShaderBase* shader)
     : m_grid(grid),
-      m_isoValue(0.5f * (grid.pointScalars()->getMax() - grid.pointScalars()->getMin())),
       m_prevIsoValue(-1.0f),
       m_shader(shader)
 {
@@ -40,12 +40,20 @@ Contour::Contour(Grid& grid, ShaderBase* shader)
     m_lengthMap[13] = 2;
     m_lengthMap[14] = 2;
     m_lengthMap[15] = 0;
+
+    this->setIsoValue(0.5f * (grid.pointScalars()->getMax() - grid.pointScalars()->getMin()));
 }
 
 void Contour::update(const Camera& camera)
 {
     m_camera = &camera;
     UpdatableObject::update();
+}
+
+void Contour::incrementHeight(float value)
+{
+	m_grid.translate(value * glm::vec4(0, 0, 1.0f, 0));
+	m_heightIncremented = true;
 }
 
 void Contour::marchingSquares(float isoValue, std::vector<ContourVertexAttribute>& data)
@@ -69,7 +77,9 @@ void Contour::marchingSquares(float isoValue, std::vector<ContourVertexAttribute
 void Contour::updateMovable(const float& totalTime, const float& frameTime)
 {
     m_shader->use();
-    if (m_isoValue != m_prevIsoValue)
+    m_grid.update();
+
+    if ((m_isoValue != m_prevIsoValue) || m_heightIncremented)
     {
         std::vector<ContourVertexAttribute> vertices;
         marchingSquares(m_isoValue, vertices);
@@ -80,9 +90,10 @@ void Contour::updateMovable(const float& totalTime, const float& frameTime)
         m_shader->setBufferColor(sizeof(ContourVertexAttribute), offsetof(ContourVertexAttribute, color));
 
         m_prevIsoValue = m_isoValue;
+		m_heightIncremented = false;
     }
 
-    glm::mat4 modelViewProj = m_camera->projection() * m_camera->pose() * this->pose();
+    glm::mat4 modelViewProj = m_camera->projection() * m_camera->pose() * this->pose() * m_grid.pose();
     m_shader->setModelViewProjection(modelViewProj);
     glDrawArrays(GL_LINES, 0, m_numVertices);
 }
@@ -121,45 +132,35 @@ int Contour::updateCell(float isoValue, int corners[CORNERS_PER_CELL], ContourVe
     //           v6          v7           v8          \ /
     //                     edge 2
 
-    float v0[3];
-    float v1[3];
-    float v2[3];
-    float v3[3];
-    float v4[3];
-    float v5[3];
-    float v6[3];
-    float v7[3];
-    float v8[3];
+    float v0[2];
+    float v1[2];
+    float v2[2];
+    float v3[2];
+    float v4[2];
+    float v5[2];
+    float v6[2];
+    float v7[2];
+    float v8[2];
 
     m_grid.getPoint(corners[0], v0);
     m_grid.getPoint(corners[1], v2);
     m_grid.getPoint(corners[2], v8);
     m_grid.getPoint(corners[3], v6);
 
-    v0[2] = m_grid.evaluate(v0[0], v0[1]);
-    v2[2] = m_grid.evaluate(v2[0], v2[1]);
-    v6[2] = m_grid.evaluate(v6[0], v6[1]);
-    v8[2] = m_grid.evaluate(v8[0], v8[1]);
-
     v1[0] = v0[0] + (v2[0] - v0[0]) * weight[0];
     v1[1] = v0[1] + (v2[1] - v0[1]) * weight[0];
-    v1[2] = m_grid.evaluate(v1[0], v1[1]);
+
+	v3[0] = v0[0] + (v6[0] - v0[0]) * (1.0f - weight[3]);
+	v3[1] = v0[1] + (v6[1] - v0[1]) * (1.0f - weight[3]);
 
     v5[0] = v2[0] + (v8[0] - v2[0]) * weight[1];
     v5[1] = v2[1] + (v8[1] - v2[1]) * weight[1];
-    v5[2] = m_grid.evaluate(v5[0], v5[1]);
 
     v7[0] = v6[0] + (v8[0] - v6[0]) * (1.0f - weight[2]);
     v7[1] = v6[1] + (v8[1] - v6[1]) * (1.0f - weight[2]);
-    v7[2] = m_grid.evaluate(v7[0], v7[1]);
-
-    v3[0] = v0[0] + (v6[0] - v0[0]) * (1.0f - weight[3]);
-    v3[1] = v0[1] + (v6[1] - v0[1]) * (1.0f - weight[3]);
-    v3[2] = m_grid.evaluate(v3[0], v3[1]);
 
     v4[0] = (v1[0] + v5[0] + v7[0] + v3[0]) / 4.0f;
     v4[1] = (v1[1] + v5[1] + v7[1] + v3[1]) / 4.0f;
-    v4[2] = m_grid.evaluate(v4[0], v4[1]);
 
     std::vector<float*> v = { v0, v1, v2, v3, v4, v5, v6, v7, v8 };
 
@@ -172,14 +173,14 @@ int Contour::updateCell(float isoValue, int corners[CORNERS_PER_CELL], ContourVe
 
         buffer[i].position.x = position[0];
         buffer[i].position.y = position[1];
-        buffer[i].position.z = position[2] + zOffset;
+        buffer[i].position.z = zOffset;
         buffer[i].color = color;
     }
 
     return length;
 }
 
-ColorContour::ColorContour(Grid& grid, const glm::vec4& color)
+ColorContour::ColorContour(Grid2D& grid, const glm::vec4& color)
     : Contour(grid, new BasicColorShader()),
       m_color(color) { }
 

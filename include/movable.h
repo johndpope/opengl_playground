@@ -57,6 +57,8 @@ protected:
 	virtual void initMovable(const GLuint& vao, const GLuint& vbo) = 0;
 	virtual void updateMovable(const float& totalTime, const float& frameTime) = 0;
 
+	bool m_pose_updated;
+
 private:
 	typedef std::function<glm::mat4(void*)> UpdateMovement;
 

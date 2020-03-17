@@ -2,11 +2,20 @@
 #include <functional>
 #include <glm.hpp>
 #include <scalar_attributes.h>
+#include <movable.h>
 
 typedef std::function<float(float, float)> Calculate2DFunction;
 typedef std::function<float(float, float, float)> Calculate3DFunction;
 
-class Grid
+struct Plane
+{
+	float a;
+	float b;
+	float c;
+	float d;
+};
+
+class Grid : public MovableObject
 {
 public:
 	virtual ~Grid() { if (m_scalars != nullptr) { delete m_scalars; } }
@@ -15,12 +24,16 @@ public:
 	virtual int numCells() = 0;
 	virtual void getPoint(int, float*) = 0;
 	virtual int getCell(int, int*) = 0;
+	virtual int findCell(float* p) = 0;
     virtual float evaluate(float x, float y, float z = 0) = 0;
 
-	virtual ScalarAttributes* pointScalars() { return m_scalars; }
+	ScalarAttributes* pointScalars() { return m_scalars; }
 
 protected:
     Grid() = default;
+
+	void initMovable(const GLuint& vao, const GLuint& vbo) { };
+	void updateMovable(const float& totalTime, const float& frameTime) { };
 
     ScalarAttributes* m_scalars;
 };
@@ -29,6 +42,7 @@ class Grid2D : public Grid
 {
 public:
 
+	int findCell(float* p) override;
 	int	getCell(int i, int* c) override;
     void getPoint(int i, float* p) override;
 
@@ -46,29 +60,10 @@ protected:
 	int 	m_numPointsY; 	// Number of points along the y−axis
 };
 
-class CalculateGrid2D : public Grid2D
-{
-public:
-	CalculateGrid2D(
-        Calculate2DFunction calcFunction,
-        int numPointsX,
-        int numPointsY,
-        float minX,
-        float minY,
-        float maxX,
-        float maxY);
-
-    float evaluate(float x, float y, float z = 0) override { return m_calcFunction(x, y); }
-
-private:
-    ScalarAttributes* initScalars();
-
-    Calculate2DFunction m_calcFunction;
-};
-
 class Grid3D : public Grid
 {
 public:
+	int findCell(float* p) override;
 	int	getCell(int i, int* c) override;
     void getPoint(int i, float* p) override;
 
@@ -87,6 +82,26 @@ protected:
 	int		m_numPointsX; 	// Number of points along the x-axis
 	int 	m_numPointsY; 	// Number of points along the y−axis
 	int 	m_numPointsZ; 	// Number of points along the z−axis
+};
+
+class CalculateGrid2D : public Grid2D
+{
+public:
+	CalculateGrid2D(
+		Calculate2DFunction calcFunction,
+		int numPointsX,
+		int numPointsY,
+		float minX,
+		float minY,
+		float maxX,
+		float maxY);
+
+	float evaluate(float x, float y, float z = 0) override { return m_calcFunction(x, y); }
+
+private:
+	ScalarAttributes* initScalars();
+
+	Calculate2DFunction m_calcFunction;
 };
 
 class CalculateGrid3D : public Grid3D
@@ -110,6 +125,30 @@ private:
     ScalarAttributes* initScalars();
 
 	Calculate3DFunction m_calcFunction;
+};
+
+class SliceGrid2D : public Grid2D
+{
+public:
+	SliceGrid2D(
+		Grid3D& grid,
+		Plane& plane,
+		int numPointsX,
+		int numPointsY,
+		float minX,
+		float minY,
+		float maxX,
+		float maxY);
+
+	float evaluate(float x, float y, float z = 0) override;
+	void setPlane(Plane& plane);
+
+private:
+	void updateMovable(const float& totalTime, const float& frameTime);
+
+	ScalarAttributes* initScalars();
+
+	Grid3D& m_grid;
 };
 
 // class PvmGrid3D : public Grid3D

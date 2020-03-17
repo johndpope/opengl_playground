@@ -24,13 +24,15 @@ struct ContourVertexAttribute
 class Contour : public MovableObject
 {
 public:
-	Contour(Grid& grid, ShaderBase* shader);
+	Contour(Grid2D& grid, ShaderBase* shader);
 	virtual ~Contour() = default;
 
 	void update(const Camera& camera);
 
     void setIsoValue(float value) { m_isoValue = value; }
 	float getIsoValue() { return m_isoValue; }
+
+	void incrementHeight(float value);
 
 protected:
 	virtual glm::vec4& getColor(float isoValue, int corners[CORNERS_PER_CELL]) = 0;
@@ -44,7 +46,9 @@ private:
     int updateCell(float isoValue, int corners[CORNERS_PER_CELL], ContourVertexAttribute* buffer, glm::vec4& color);
 
 	const Camera* 	m_camera;
-    Grid&           m_grid;
+	float			m_contourHeight;
+    Grid2D&         m_grid;
+	bool 			m_heightIncremented;
     float           m_isoValue;
     LengthMap       m_lengthMap;
     int             m_numVertices;
@@ -56,7 +60,7 @@ private:
 class ColorContour : public Contour
 {
 public:
-	ColorContour(Grid& grid, const glm::vec4& color = glm::vec4(0, 0, 1.0f, 1.0f));
+	ColorContour(Grid2D& grid, const glm::vec4& color = glm::vec4(0, 0, 1.0f, 1.0f));
 
 private:
 	glm::vec4& getColor(float isoValue, int corners[CORNERS_PER_CELL]);

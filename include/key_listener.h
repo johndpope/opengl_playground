@@ -126,3 +126,24 @@ private:
 	float m_iso;
 	bool m_wireframe;
 };
+
+class MeshContourKeyListener : public MovableKeyListener
+{
+public:
+	MeshContourKeyListener(GLFWwindow* window, Mesh& mesh, Contour& contour, float rotate = 1.0f, float scale = 1.01f, float iso = 0.01f, float slice = 0.01f);
+	~MeshContourKeyListener() { delete m_meshKeyListener; }
+
+private:
+	void isoUp();
+	void isoDown();
+	void sliceUp();
+	void sliceDown();
+	void wireframe();
+
+	float m_iso;
+	float m_slice;
+	Mesh& m_mesh;
+	Contour& m_contour;
+	bool m_wireframe;
+	MovableKeyListener* m_meshKeyListener;
+};

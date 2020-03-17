@@ -78,6 +78,7 @@ float calculation2D(float x, float y)
 float calculation3D(float x, float y, float z)
 {
 	return sqrt(x * x + y * y + z * z);
+	//return (sinf(10 * x) * sinf(10 * y) * sinf(10 * z)) / (1000 * x * y * z);
 }
 
 glm::vec4 color(float value)
@@ -125,11 +126,14 @@ int main(int argc, char **argv)
     CalculateGrid3D grid3D(calculation3D, 30, 30, 30, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f);
 	Mesh mesh(grid3D, color);
 	mesh.init();
-	MeshKeyListener meshKeyListener = MeshKeyListener(window, mesh);
+	mesh.setIsoValue(0.5f);
 
-	//ColorContour contour(grid3D, glm::vec4(0, 0, 0, 1.0f));
-	//contour.init();
-	//ContourKeyListener contourKeyListener = ContourKeyListener(window, contour);
+	Plane slicePlane = { 1.0f, 1.0f, 0, 0 };
+	SliceGrid2D grid2D(grid3D, slicePlane, 30, 30, -1.0f, -1.0f, 1.0f, 1.0f);
+	ColorContour contour(grid2D, glm::vec4(0, 0, 0, 1.0f));
+	contour.init();
+	contour.setIsoValue(0.5f);
+	MeshContourKeyListener meshContourKeyListener = MeshContourKeyListener(window, mesh, contour);
 
 	LightBox light;
 	light.init();
@@ -148,8 +152,8 @@ int main(int argc, char **argv)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera.update();
+		contour.update(camera);
         mesh.update(camera);
-		//contour.update(camera);
 		light.update(camera);
 
 		glFlush();

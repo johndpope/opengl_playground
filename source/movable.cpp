@@ -31,9 +31,19 @@ void UpdatableObject::update()
 	m_totalTime = glfwGetTime() - m_startTime;
 	float frameTime = m_totalTime - m_lastTotalTime;
 
+	GLint currentVao;
+	glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &currentVao);
+
 	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	this->updateUpdatable(m_totalTime, frameTime);
 	glBindVertexArray(0);
+
+	if (currentVao > 0)
+	{
+		glBindVertexArray(currentVao);
+		glBindBuffer(GL_ARRAY_BUFFER, currentVao);
+	}
 
 	m_lastTotalTime = m_totalTime;
 }
@@ -70,16 +80,19 @@ const glm::mat4 MovableObject::rotation() const
 void MovableObject::scale(const glm::vec3& scale)
 {
 	m_pose = glm::scale(m_pose, scale);
+	m_pose_updated = true;
 }
 
 void MovableObject::rotate(const glm::vec3& axis, const float& angleInDeg)
 {
 	m_pose = glm::rotate(m_pose, (float)glm::radians(angleInDeg), glm::normalize(axis));
+	m_pose_updated = true;
 }
 
 void MovableObject::translate(const glm::vec3& translation)
 {
 	m_pose = glm::translate(m_pose, translation);
+	m_pose_updated = true;
 }
 
 void MovableObject::scaleTo(const glm::vec3& targetScale, const float& duration)
@@ -177,9 +190,12 @@ void MovableObject::updateUpdatable(const float& totalTime, const float& frameTi
 		{
 			keepUpdating = false;
 		}
+
+		m_pose_updated = true;
 	}
 
 	this->updateMovable(totalTime, frameTime);
+	m_pose_updated = false;
 }
 
 void MovableObject::initUpdatable(const GLuint& vao, const GLuint& vbo)
