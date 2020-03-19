@@ -13,6 +13,11 @@ Mesh::Mesh(Grid3D& grid, ColorFunction colorFunction)
     {
         m_colorFunction = ColorFunction(std::bind(&Mesh::defaultColor, this, std::placeholders::_1));
     }
+
+	m_material.shininess = rand() / (float)RAND_MAX;
+	m_material.ambientColor = glm::vec3(0.1f, 0.1f, 0.1f);
+	m_material.diffuseColor = glm::vec3(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX);
+	m_material.specularColor = glm::vec3(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX);
 }
 
 Mesh::~Mesh()
@@ -20,9 +25,10 @@ Mesh::~Mesh()
     delete m_shader;
 }
 
-void Mesh::update(const Camera& camera)
+void Mesh::update(const Camera& camera, const Light& light)
 {
     m_camera = &camera;
+    m_light = &light;
     UpdatableObject::update();
 }
 
@@ -69,6 +75,7 @@ void Mesh::updateMovable(const float& totalTime, const float& frameTime)
         m_numVertices = vertices.size();
 
         m_shader->setBufferPosition(sizeof(MeshVertexAttribute), offsetof(MeshVertexAttribute, position));
+        m_shader->setBufferNormal(sizeof(MeshVertexAttribute), offsetof(MeshVertexAttribute, normal));
 	    m_shader->setBufferColorNorm(sizeof(MeshVertexAttribute), offsetof(MeshVertexAttribute, colorNorm));
 
         m_prevIsoValue = m_isoValue;
@@ -80,6 +87,8 @@ void Mesh::updateMovable(const float& totalTime, const float& frameTime)
 	m_shader->setView(m_camera->pose());
 	m_shader->setModelView(modelView);
 	m_shader->setModelViewProjection(modelViewProj);
+	m_shader->setLightPosition(m_light->translation());
+	m_shader->setMaterial(m_material);
 
     glBindTexture(GL_TEXTURE_1D, m_colorTexture);
     glDrawArrays(GL_TRIANGLES, 0, m_numVertices);
@@ -450,11 +459,19 @@ int Mesh::updateVoxel(float isoValue, int corners[CORNERS_PER_VOXEL], MeshVertex
     int numVertices = 0;
     while (triangleTable[code][numVertices] != -1)
     {
-        buffer[numVertices].position = vertices[triangleTable[code][numVertices]];
+        glm::vec3 a = vertices[triangleTable[code][numVertices + 0]];
+        glm::vec3 b = vertices[triangleTable[code][numVertices + 1]];
+        glm::vec3 c = vertices[triangleTable[code][numVertices + 2]];
+        glm::vec3 n = glm::normalize(glm::cross(b - a, c - a));
+
+        buffer[numVertices].position = a;
+        buffer[numVertices].normal = n;
         buffer[numVertices++].colorNorm = computeNorm(isoValue, min, max);
-        buffer[numVertices].position = vertices[triangleTable[code][numVertices]];
+        buffer[numVertices].position = b;
+        buffer[numVertices].normal = n;
         buffer[numVertices++].colorNorm = computeNorm(isoValue, min, max);
-        buffer[numVertices].position = vertices[triangleTable[code][numVertices]];
+        buffer[numVertices].position = c;
+        buffer[numVertices].normal = n;
         buffer[numVertices++].colorNorm = computeNorm(isoValue, min, max);
     }
 

@@ -2,10 +2,10 @@
 #include <light_shape.h>
 
 LightBox::LightBox(const glm::vec4& color)
-	: m_box(new BasicColorBox(color, glm::vec3(0.05f))) { }
+	: m_box(new BasicColorBox(color, glm::vec3(5.0f))) { }
 
 LightBox::LightBox()
-	: m_box(new BasicColorBox(glm::vec4(1.0f), glm::vec3(0.05f))) { }
+	: m_box(new BasicColorBox(glm::vec4(1.0f), glm::vec3(5.0f))) { }
 
 LightBox::~LightBox()
 {

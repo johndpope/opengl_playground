@@ -8,7 +8,6 @@
 #include <key_listener.h>
 #include <sphere.h>
 #include <grid.h>
-#include <ddsbase.h>
 #include <algorithm>
 
 const GLuint SCR_WIDTH = 1200;
@@ -77,8 +76,8 @@ float calculation2D(float x, float y)
 
 float calculation3D(float x, float y, float z)
 {
-	return sqrt(x * x + y * y + z * z);
-	//return (sinf(10 * x) * sinf(10 * y) * sinf(10 * z)) / (1000 * x * y * z);
+	//return sqrt(x * x + y * y + z * z);
+	return (sinf(10 * x) * sinf(10 * y) * sinf(10 * z)) / (1000 * x * y * z);
 }
 
 glm::vec4 color(float value)
@@ -95,53 +94,52 @@ glm::vec4 color(float value)
 	return glm::vec4(rgb, 0.25f);
 }
 
+glm::vec4 bonzaiColor(float value)
+{
+	float d = value * 255.0f;
+	float r = fmin(1.0f, fmax(0, 0.396f * (d - 30.0f) / 48.0f));
+	float g = fmin(1.0f, fmax(0, 1.0f + 0.75f * (30.0f - d) / 48.0f));
+	float b = fmin(1.0f, fmax(0, 0.129f * (d - 30.0f) / 48.0f));
+
+	glm::vec3 rgb = glm::normalize(glm::vec3(r, g, b));
+
+	return glm::vec4(rgb, 0.75f);
+}
+
 int main(int argc, char **argv)
 {
-    unsigned char *volume;
-    unsigned int components;
-    unsigned int depth;
-    unsigned int width;
-    unsigned int height;
-
-    float scalex;
-    float scaley;
-    float scalez;
-
-    volume = readPVMvolume(
-        "datasets\\Bonsai2-HI.pvm",
-        &width,
-        &height,
-        &depth,
-        &components,
-        &scalex,
-        &scaley,
-        &scalez,
-        NULL, NULL, NULL, NULL
-    );
-
-    free(volume);
-
 	GLFWwindow* window = initWindow();
 
-    CalculateGrid3D grid3D(calculation3D, 30, 30, 30, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f);
-	Mesh mesh(grid3D, color);
+	PvmGrid3D grid3D("datasets\\Bonsai2-HI.pvm");
+	Mesh mesh(grid3D, bonzaiColor);
 	mesh.init();
-	mesh.setIsoValue(0.5f);
+	mesh.setIsoValue(78.0f);
+	MeshKeyListener meshKeyListener = MeshKeyListener(window, mesh);
 
-	Plane slicePlane = { 1.0f, 1.0f, 0, 0 };
-	SliceGrid2D grid2D(grid3D, slicePlane, 30, 30, -1.0f, -1.0f, 1.0f, 1.0f);
-	ColorContour contour(grid2D, glm::vec4(0, 0, 0, 1.0f));
-	contour.init();
-	contour.setIsoValue(0.5f);
-	MeshContourKeyListener meshContourKeyListener = MeshContourKeyListener(window, mesh, contour);
+	Mesh mesh3(grid3D, bonzaiColor);
+	mesh3.init();
+	mesh3.setIsoValue(30.0f);
+	MeshKeyListener meshKeyListener3 = MeshKeyListener(window, mesh3);
+
+	Mesh mesh2(grid3D, bonzaiColor);
+	mesh2.init();
+	mesh2.setIsoValue(210.0f);
+	MeshKeyListener meshKeyListener2 = MeshKeyListener(window, mesh2);
+
+	//Plane slicePlane = { 1.0f, 0, 0, 0 };
+	//SliceGrid2D grid2D(grid3D, slicePlane, 30, 30, -125.0f, -125.0f, 125.0f, 125.0f);
+	//ColorContour contour(grid2D, glm::vec4(0, 0, 0, 1.0f));
+	//contour.init();
+	//contour.setIsoValue(78.0f);
+	//MeshContourKeyListener meshContourKeyListener = MeshContourKeyListener(window, mesh, contour);
 
 	LightBox light;
 	light.init();
-	light.orbit(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0.0f), 2.0f, 2.0f, 0.1f);
+	light.orbit(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0.0f), 130.0f, 2.0f, 0.1f);
 
-	PerspectiveCamera camera(SCR_WIDTH, SCR_HEIGHT, 45.0f, 0.1f, 50.0f);
+	PerspectiveCamera camera(SCR_WIDTH, SCR_HEIGHT, 45.0f, 0.1f, 500.0f);
 	camera.init();
-	camera.translate(glm::vec3(0, 0, 10.0f));
+	camera.translate(glm::vec3(0, 0, 300.0f));
 	camera.lookAt(glm::vec3(0, 0, 0));
 	CameraKeyListener cameraKeyListener = CameraKeyListener(window, camera);
 
@@ -152,8 +150,10 @@ int main(int argc, char **argv)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera.update();
-		contour.update(camera);
-        mesh.update(camera);
+		//contour.update(camera);
+		mesh2.update(camera, light);
+		mesh.update(camera, light);
+		mesh3.update(camera, light);
 		light.update(camera);
 
 		glFlush();

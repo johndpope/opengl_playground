@@ -3,7 +3,7 @@
 
 Surface::Surface(Grid2D& grid, ColorFunction colorFunction)
     : m_grid(grid),
-      m_shader(new ColorMapShader()),
+      m_shader(new BasicColorMapShader()),
       m_colorFunction(colorFunction),
       m_defaultColor(glm::vec4(1.0f, 0, 0, 1.0f))
 {

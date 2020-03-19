@@ -39,6 +39,13 @@ public:
 		ShaderBase("shader\\basicColorVertexShader.glsl", "shader\\basicColorFragmentShader.glsl") { }
 };
 
+class BasicColorMapShader : public ShaderBase
+{
+public:
+	BasicColorMapShader() :
+		ShaderBase("shader\\basicColorMapVertexShader.glsl", "shader\\basicColorMapFragmentShader.glsl") { }
+};
+
 class ColorShader : public ShaderBase
 {
 public:

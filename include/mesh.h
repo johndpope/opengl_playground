@@ -4,8 +4,10 @@
 #include <movable.h>
 #include <camera.h>
 #include <grid.h>
+#include <light.h>
+#include <material.h>
 
-#define COLOR_MAP_RESOLUTION 32
+#define COLOR_MAP_RESOLUTION 128
 #define MAX_EDGES_PER_CELL 12
 #define VERTICES_PER_EDGE 2
 #define CORNERS_PER_VOXEL 8
@@ -15,6 +17,7 @@ typedef std::function<glm::vec4(float)> ColorFunction;
 struct MeshVertexAttribute
 {
     glm::vec3 position;
+	glm::vec3 normal;
 	float colorNorm;
 };
 
@@ -25,7 +28,7 @@ public:
 	~Mesh();
 
 	void wireframe(bool enable);
-	void update(const Camera& camera);
+	void update(const Camera& camera, const Light& light);
 
     void setIsoValue(float value) { m_isoValue = value; }
 	float getIsoValue() { return m_isoValue; }
@@ -48,6 +51,8 @@ private:
     glm::vec4 		m_defaultColor;
 	Grid3D&			m_grid;
     float           m_isoValue;
+	const Light* 	m_light;
+	Material		m_material;
     int 			m_numVertices;
     float           m_prevIsoValue;
 	ShaderBase* 	m_shader;
