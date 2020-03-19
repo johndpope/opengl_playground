@@ -1,4 +1,5 @@
 #pragma once
+#include <ddsbase.h>
 #include <grid.h>
 #include <glm\gtx\matrix_decompose.hpp>
 
@@ -271,4 +272,84 @@ ScalarAttributes* CalculateGrid3D::initScalars()
     }
 
     return scalars;
+}
+
+PvmGrid3D::PvmGrid3D(std::string pvmFilePath)
+{
+    unsigned char *volume;
+    unsigned int components;
+    unsigned int depth;
+    unsigned int width;
+    unsigned int height;
+
+    float scaleX;
+    float scaleY;
+    float scaleZ;
+
+    volume = readPVMvolume(
+        pvmFilePath.c_str(),
+        &width,
+        &height,
+        &depth,
+        &components,
+        &scaleX,
+        &scaleY,
+        &scaleZ,
+        NULL, NULL, NULL, NULL
+    );
+
+	m_numPointsX = width;
+	m_numPointsY = height;
+	m_numPointsZ = depth;
+	m_minX = -(width * scaleX) / 2.0f;
+	m_minY = -(height * scaleY) / 2.0f;
+	m_minZ = -(depth * scaleZ) / 2.0f;
+	m_cellWidth  = scaleX;
+	m_cellHeight = scaleY;
+	m_cellDepth  = scaleZ;
+	m_scalars = this->initScalars(volume, components);
+
+	free(volume);
+}
+
+float PvmGrid3D::evaluate(float x, float y, float z)
+{
+	float point3D[3] = {x, y, z};
+	int index = this->findCell(point3D);
+	if (index == -1)
+	{
+		return INFINITY;
+	}
+
+	return this->pointScalars()->getC0Scalar(index);
+
+	// int corners[8];
+	// this->getCell(index, corners);
+	// this->getPoint(corners[0], point3D);
+
+	// float values[8];
+	// for (int i = 0; i < 8; i++)
+	// {
+	// 	values[i] = this->pointScalars()->getC0Scalar(corners[i]);
+	// }
+}
+
+ScalarAttributes* PvmGrid3D::initScalars(unsigned char* volume, unsigned int bytesPerValue)
+{
+	ScalarAttributes* scalars = new ScalarAttributes(m_numPointsX * m_numPointsY * m_numPointsZ);
+
+	int numPoints = this->numPoints();
+	for (int i = 0; i < numPoints; i++)
+	{
+		int value = 0;
+
+		for (int j = 0; j < bytesPerValue; j++)
+		{
+			value |= volume[i * bytesPerValue + j] << (8 * j);
+		}
+
+		scalars->setC0Scalar(i, value);
+	}
+
+	return scalars;
 }

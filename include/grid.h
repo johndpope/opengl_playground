@@ -151,13 +151,13 @@ private:
 	Grid3D& m_grid;
 };
 
-// class PvmGrid3D : public Grid3D
-// {
-// public:
-// 	PvmGrid3D(std::string pvmFilePath);
+class PvmGrid3D : public Grid3D
+{
+public:
+	PvmGrid3D(std::string pvmFilePath);
 
-//     float evaluate(float x, float y, float z);
+    float evaluate(float x, float y, float z) override;
 
-// protected:
-//     ScalarAttributes* initScalars();
-// };
+private:
+    ScalarAttributes* initScalars(unsigned char* volume, unsigned int bytesPerValue);
+};
