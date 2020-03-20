@@ -1,11 +1,11 @@
 #pragma once
 #include <light_shape.h>
 
-LightBox::LightBox(const glm::vec4& color)
-	: m_box(new BasicColorBox(color, glm::vec3(5.0f))) { }
+LightBox::LightBox(const glm::vec4& color, const glm::vec3 size)
+	: m_box(new BasicColorBox(color, size)) { }
 
-LightBox::LightBox()
-	: m_box(new BasicColorBox(glm::vec4(1.0f), glm::vec3(5.0f))) { }
+LightBox::LightBox(const glm::vec3 size)
+	: m_box(new BasicColorBox(glm::vec4(1.0f), size)) { }
 
 LightBox::~LightBox()
 {

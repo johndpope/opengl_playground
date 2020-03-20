@@ -74,9 +74,13 @@ float calculation2D(float x, float y)
 	return (sinf(10 * x) * sinf(10 * y)) / (100 * x * y);
 }
 
-float calculation3D(float x, float y, float z)
+float calculation3DRadius(float x, float y, float z)
 {
-	//return sqrt(x * x + y * y + z * z);
+	return sqrt(x * x + y * y + z * z);
+}
+
+float calculation3DSinc(float x, float y, float z)
+{
 	return (sinf(10 * x) * sinf(10 * y) * sinf(10 * z)) / (1000 * x * y * z);
 }
 
@@ -91,7 +95,7 @@ glm::vec4 color(float value)
 
 	glm::vec3 rgb = glm::normalize(glm::vec3(r, g, b));
 
-	return glm::vec4(rgb, 0.25f);
+	return glm::vec4(rgb, 0.10f);
 }
 
 glm::vec4 bonzaiColor(float value)
@@ -100,16 +104,15 @@ glm::vec4 bonzaiColor(float value)
 	float r = fmin(1.0f, fmax(0, 0.396f * (d - 30.0f) / 48.0f));
 	float g = fmin(1.0f, fmax(0, 1.0f + 0.75f * (30.0f - d) / 48.0f));
 	float b = fmin(1.0f, fmax(0, 0.129f * (d - 30.0f) / 48.0f));
+	float a = fmin(1.0f, fmax(0, 0.75f * (d - 10.5f) / 48.0f));
 
 	glm::vec3 rgb = glm::normalize(glm::vec3(r, g, b));
 
-	return glm::vec4(rgb, 0.75f);
+	return glm::vec4(rgb, a);
 }
 
-int main(int argc, char **argv)
+void bonzaiMain(GLFWwindow* window)
 {
-	GLFWwindow* window = initWindow();
-
 	PvmGrid3D grid3D("datasets\\Bonsai2-HI.pvm");
 	Mesh mesh(grid3D, bonzaiColor);
 	mesh.init();
@@ -126,14 +129,7 @@ int main(int argc, char **argv)
 	mesh2.setIsoValue(210.0f);
 	MeshKeyListener meshKeyListener2 = MeshKeyListener(window, mesh2);
 
-	//Plane slicePlane = { 1.0f, 0, 0, 0 };
-	//SliceGrid2D grid2D(grid3D, slicePlane, 30, 30, -125.0f, -125.0f, 125.0f, 125.0f);
-	//ColorContour contour(grid2D, glm::vec4(0, 0, 0, 1.0f));
-	//contour.init();
-	//contour.setIsoValue(78.0f);
-	//MeshContourKeyListener meshContourKeyListener = MeshContourKeyListener(window, mesh, contour);
-
-	LightBox light;
+	LightBox light(glm::vec3(5.0f));
 	light.init();
 	light.orbit(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0.0f), 130.0f, 2.0f, 0.1f);
 
@@ -150,7 +146,6 @@ int main(int argc, char **argv)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera.update();
-		//contour.update(camera);
 		mesh2.update(camera, light);
 		mesh.update(camera, light);
 		mesh3.update(camera, light);
@@ -159,6 +154,78 @@ int main(int argc, char **argv)
 		glFlush();
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+	}
+}
+
+void testMain(GLFWwindow* window)
+{
+   	CalculateGrid3D grid3DRadius(calculation3DRadius, 40, 40, 40, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f);
+	Mesh meshRadius(grid3DRadius, color);
+	meshRadius.init();
+	meshRadius.setIsoValue(0.5f);
+
+	CalculateGrid3D grid3DSinc(calculation3DSinc, 40, 40, 40, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f);
+	Mesh meshSinc(grid3DSinc, color);
+	meshSinc.init();
+	meshSinc.setIsoValue(0.5f);
+
+	Plane slicePlane = { 1.0f, 0, 1.0f, 0 };
+
+	SliceGrid2D grid2DRadius(grid3DRadius, slicePlane, 50, 50, -1.0f, -1.0f, 1.0f, 1.0f);
+	ColorContour contourRadius(grid2DRadius, glm::vec4(0, 0, 0, 1.0f));
+	contourRadius.init();
+	contourRadius.setIsoValue(0.5f);
+	MeshContourKeyListener meshContourKeyListenerRadius = MeshContourKeyListener(window, meshRadius, contourRadius);
+
+	SliceGrid2D grid2DSinc(grid3DSinc, slicePlane, 50, 50, -1.0f, -1.0f, 1.0f, 1.0f);
+	ColorContour contourSinc(grid2DSinc, glm::vec4(0, 0, 0, 1.0f));
+	contourSinc.init();
+	contourSinc.setIsoValue(0.5f);
+	MeshContourKeyListener meshContourKeyListenerSinc = MeshContourKeyListener(window, meshSinc, contourSinc);
+
+	LightBox light;
+	light.init();
+	light.orbit(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0.0f), 2.0f, 2.0f, 0.1f);
+
+	PerspectiveCamera camera(SCR_WIDTH, SCR_HEIGHT, 45.0f, 0.1f, 50.0f);
+	camera.init();
+	camera.translate(glm::vec3(0, 0, 3.0f));
+	camera.lookAt(glm::vec3(0, 0, 0));
+	CameraKeyListener cameraKeyListener = CameraKeyListener(window, camera);
+
+	// Render loop
+	while (!glfwWindowShouldClose(window))
+	{
+		glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		camera.update();
+		contourRadius.update(camera);
+		contourSinc.update(camera);
+		meshRadius.update(camera, light);
+		meshSinc.update(camera, light);
+		light.update(camera);
+
+		glFlush();
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+}
+
+int main(int argc, char **argv)
+{
+	GLFWwindow* window = initWindow();
+
+	if (argc > 1)
+	{
+		std::cout << "Using bonzai tree visualization main" << std::endl;
+		bonzaiMain(window);
+	}
+	else
+	{
+		std::cout << "Using test visualization main" << std::endl;
+		std::cout << "Run with any argument to use the bonzai tree visualization (extremely slow loading...)" << std::endl;
+		testMain(window);
 	}
 
 	glfwTerminate();

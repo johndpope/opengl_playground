@@ -5,8 +5,8 @@
 class LightBox : public Light
 {
 public:
-	LightBox(const glm::vec4& color);
-	LightBox();
+	LightBox(const glm::vec4& color, const glm::vec3 size = glm::vec3(0.05f));
+	LightBox(const glm::vec3 size = glm::vec3(0.05f));
 	~LightBox();
 
 	void update(const Camera& camera);
