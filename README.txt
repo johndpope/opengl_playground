@@ -11,8 +11,10 @@ Z : Rotate shape about Z axis
 - : Scale down shape
 J : Rotate camera to the left
 L : Rotate camera to the right
-U : Increase the iso value
-I : Decrease the iso value
+U : Move contour plane up
+I : Move contour plane down
+N : Increase the iso value
+M : Decrease the iso value
 
 For convenience I have attached the exe
 
